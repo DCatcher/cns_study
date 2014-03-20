@@ -44,8 +44,7 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont);
 		load sig_1
 	end
 	%}
-%     for big_rand = 0:2
-    for big_rand = 1:1
+    for big_rand = 1:2
         if (cont==0)
             g_a = g_max*rand(1, n);
             p_a = zeros(1, n);
@@ -69,9 +68,8 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont);
         end
         for big_time_now =0:big_time
             for time_now=0:my_time
-                disp(time_now);
+				fprintf('time_now:%i/%i,round:%i/%i\n',time_now,my_time,big_time_now,big_time);
                 [sig_ex_all sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda);
-                disp('fine');
                 if (time_now>0)
                     vol(1) = vol(time_all);
                 end
@@ -94,18 +92,19 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont);
                     [g_ex, M, p_a, g_a] = ex_synp(g_ex, M, p_a, g_a, Po_ex, sig_ex_all(i,:), n, fs);
                 end
                 ans = sum(vol>-10);
-                disp(ans);
+				fprintf('spiking_time:%i\n',ans);
             end
             sig_ex_all = [];
             sig_in_all = [];
-%             if big_rand==0
-%                 s = ['save_data_15_',int2str(big_time_now)]
-%             elseif big_rand==1
-%                 s = ['save_data_20_',int2str(big_time_now)]
-%             elseif big_rand==2
-%                 s = ['save_data_25_',int2str(big_time_now)]
-%             end
-%             save(s)
+			if big_rand==0
+			 s = ['save_data_15_',int2str(big_time_now)]
+			elseif big_rand==1
+			 s = ['save_data_20_',int2str(big_time_now)]
+			elseif big_rand==2
+			 s = ['save_data_25_',int2str(big_time_now)]
+			end
+			save(s)
+			disp('saved!');
     %         save [save_data] g_ex g_in M p_a g_a
         end
     end
