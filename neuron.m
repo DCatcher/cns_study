@@ -44,11 +44,14 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont);
 		load sig_1
 	end
 	%}
-    for big_rand = 1:2
+    for big_rand = 0:2
         if (cont==0)
             g_a = g_max*rand(1, n);
             p_a = zeros(1, n);
             M = 0;
+            g_a_in = g_max*rand(1, m);
+            p_a_in = zeros(1, m);
+            M_in = 0;
             g_ex = 1;
             g_in = 0;
         elseif (cont==1)
@@ -88,8 +91,9 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont);
                             vol(i) = 0;
                         end
                     end
-                    g_in = in_synp(g_in, sig_in_all(i,:), m, fs);
+%                     g_in = in_synp(g_in, sig_in_all(i,:), m, fs);
                     [g_ex, M, p_a, g_a] = ex_synp(g_ex, M, p_a, g_a, Po_ex, sig_ex_all(i,:), n, fs);
+                    [g_in, M_in, p_a_in, g_a_in] = in_synp(g_in, M_in, p_a_in, g_a_in, Po_ex, sig_in_all(i,:), m, fs);
                 end
                 ans = sum(vol>-10);
 				fprintf('spiking_time:%i\n',ans);
