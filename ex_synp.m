@@ -1,4 +1,4 @@
-function [g_ex, M, p_a, g_a] = ex_synp(g_ex_o, M_o, p_a_o, g_a_o, Po_ex, sig_in, n, fs);
+function [g_ex, M, p_a, g_a] = ex_synp(g_ex_o, M_o, p_a_o, g_a_o, Po_ex, sig_in, n, fs)
 
 	tao_ex = 5.0/1000;
 	g_max = 0.015;

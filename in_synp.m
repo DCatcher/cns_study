@@ -14,29 +14,29 @@
 % 	end
 % end
 
-function [g_ex, M, p_a, g_a] = in_synp(g_ex_o, M_o, p_a_o, g_a_o, Po_ex, sig_in, n, fs);
+function [g_in, M_in, p_a_in, g_a_in] = in_synp(g_in_o, M_in_o, p_a_in_o, g_a_in_o, Po_ex, sig_in, m, fs)
 
-	tao_ex = 5.0/1000;
-	g_max = 0.015;
-	tao_neg = 20.0/1000;
-	tao_pos = 20.0/1000;
-	A_pos = 0.005;
-	A_neg = A_pos;
+	tao_ex_in = 5.0/1000;
+	g_max_in = 0.07;
+	tao_neg_in = 30.0/1000;
+	tao_pos_in = 30.0/1000;
+	A_pos_in = 0.015;
+	A_neg_in = A_pos_in;
 
-	g_ex = g_ex_o+(-g_ex_o)/tao_ex*1.0/fs;
-	M = M_o + (-M_o)/tao_neg*1.0/fs;
-	p_a = p_a_o+(-p_a_o)/tao_pos*1.0/fs;
-	g_a = g_a_o;
+	g_in = g_in_o+(-g_in_o)/tao_ex_in*1.0/fs;
+	M_in = M_in_o + (-M_in_o)/tao_neg_in*1.0/fs;
+	p_a_in = p_a_in_o+(-p_a_in_o)/tao_pos_in*1.0/fs;
+	g_a_in = g_a_in_o;
 	
-    M = M + Po_ex*A_neg;
-    g_ex = g_ex + sum(g_a.*sig_in);
-    g_a = g_a + sig_in*(M-0.2*A_neg)*g_max;
-    p_a = p_a + A_pos*sig_in;
+    M_in = M_in + Po_ex*A_neg_in;
+    g_in = g_in + sum(g_a_in.*sig_in);
+    g_a_in = g_a_in + sig_in*(M_in-0.4*A_neg_in)*g_max_in;
+    p_a_in = p_a_in + A_pos_in*sig_in;
     
-    g_a = g_a + (p_a-0.2*A_pos)*g_max*Po_ex;
+    g_a_in = g_a_in + (p_a_in-0.4*A_pos_in)*g_max_in*Po_ex;
     
-    g_a = max(g_a,0);
-    g_a = min(g_a,g_max);
+    g_a_in = max(g_a_in,0);
+    g_a_in = min(g_a_in,g_max_in);
     
 % 	if (Po_ex==1)
 % 		M = M-A_neg;
