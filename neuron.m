@@ -1,4 +1,6 @@
 function [vol, g_a] = neuron(n,m,tmax,fs,cont)
+    expand_size = 7;
+
 	tao_m = 20.0/1000;
 	v_rest = -70;
 	e_ex = 0;
@@ -8,16 +10,15 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont)
 	lamda = 1.0/10;
 	time_all = tmax*fs;
     
-    
 	tao_ex = 5.0/1000;
-	g_max = 0.015;
+	g_max = 0.015*expand_size;
 	tao_neg = 20.0/1000;
 	tao_pos = 20.0/1000;
 	A_pos = 0.005;
 	A_neg = 1.05*A_pos;
     
     tao_ex_in = 5.0/1000;
-	g_max_in = 0.07;
+	g_max_in = 0.2*expand_size;
 	tao_neg_in = 30.0/1000;
 	tao_pos_in = 30.0/1000;
 	A_pos_in = 0.015;
@@ -153,7 +154,7 @@ function [vol, g_a] = neuron(n,m,tmax,fs,cont)
 			elseif big_rand==2
 			 s = ['save_data_25_',int2str(big_time_now)];
 			end
-			save(s)
+			save(s);
 			fprintf('saved!%s\n',s);
     %         save [save_data] g_ex g_in M p_a g_a
         end
