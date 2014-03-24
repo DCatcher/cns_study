@@ -29,13 +29,14 @@ function [vol, g_a] = neuron(param)
 	A_neg_in = param.A_neg_in;
     g_in_ba = param.g_in_ba;
     
-    show_mode = param.show_mode;
+    display_mode = param.display_mode;
+    short_report_mode = param.short_report_mode;
 
 	time_all = tmax*fs;
 	vol = zeros(1,time_all);
 	vol(1) = v_reset;
                 
-    if show_mode==1
+    if display_mode==1
         M_s = 0:0.05:1;
         figure;
     end
@@ -53,25 +54,18 @@ function [vol, g_a] = neuron(param)
         elseif (cont==1)
             load save_data
         end
-        g_ex_all=zeros(1,time_all);
-        g_in_all=zeros(1,time_all);
-        m_all=zeros(1,time_all);
-        p_a_mean_all = zeros(1,time_all);
-        
         tag_now = round(1/lamda_now);
         
         for time_now=0:tmax:time_simu
-            fprintf('time_now:%i/%i, step: %i, tag now: %i\n',time_now,time_simu,tmax,tag_now);
+            if short_report_mode==1
+                fprintf('time_now:%i/%i, step: %i, Poi fre: %i\n',time_now,time_simu,tmax,tag_now);
+            end
             [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
             if (time_now>0)
                 vol(1) = vol(time_all);
             end
             for i=2:time_all
                 Po_ex = 0;
-                g_ex_all(i) = g_ex;
-                g_in_all(i) = g_in;
-                m_all(i) = M;
-                p_a_mean_all(i) = max(p_a);
                 if (vol(i-1)>v_th)
                     vol(i) = -60;
                 else
@@ -117,9 +111,11 @@ function [vol, g_a] = neuron(param)
             end
             
             ans_my = sum(vol>-10);
-            fprintf('spiking_time:%i\n',ans_my);
+            if short_report_mode==1
+                fprintf('spiking_time:%i\n',ans_my);
+            end
 
-            if show_mode==1
+            if display_mode==1
                 hist(g_a/g_max,M_s);
                 title('g_a');
                 pause(0.01);
