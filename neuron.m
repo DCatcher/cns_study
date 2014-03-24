@@ -27,17 +27,25 @@ function [vol, g_a] = neuron(param)
 	tao_pos_in = param.tao_pos_in;
 	A_pos_in = param.A_pos_in;
 	A_neg_in = param.A_neg_in;
+    g_in_ba = param.g_in_ba;
+    
+    show_mode = param.show_mode;
 
 	time_all = tmax*fs;
 	vol = zeros(1,time_all);
 	vol(1) = v_reset;
+                
+    if show_mode==1
+        M_s = 0:0.05:1;
+        figure;
+    end
 
     for lamda_now=lamda
         if (cont==0)
             g_a = g_max*rand(1, n);
             p_a = zeros(1, n);
             M = 0;
-            g_a_in = g_max*rand(1, m);
+            g_a_in = g_max*zeros(1, m);
             p_a_in = zeros(1, m);
             M_in = 0;
             g_ex = 1;
@@ -90,23 +98,32 @@ function [vol, g_a] = neuron(param)
                 g_a = min(g_a,g_max);
 
                 sig_in = sig_in_all(i,:);
-                g_in = g_in+(-g_in)/tao_ex_in*1.0/fs;
-                M_in = M_in + (-M_in)/tao_neg_in*1.0/fs;
-                p_a_in = p_a_in+(-p_a_in)/tao_pos_in*1.0/fs;
-
-                M_in = M_in + Po_ex*A_neg_in;
-                g_in = g_in + sum(g_a_in.*sig_in);
-                g_a_in = g_a_in + sig_in*(M_in-0.4*A_neg_in)*g_max_in;
-                p_a_in = p_a_in + A_pos_in*sig_in;
-
-                g_a_in = g_a_in + (p_a_in-0.4*A_pos_in)*g_max_in*Po_ex;
-
-                g_a_in = max(g_a_in,0);
-                g_a_in = min(g_a_in,g_max_in);
+                g_in = (-g_in)/tao_ex_in*1.0/fs+g_in;
+                g_in = g_in + sum(g_in_ba.*sig_in);
+%                 g_in = g_in+(-g_in)/tao_ex_in*1.0/fs;
+%                 M_in = M_in + (-M_in)/tao_neg_in*1.0/fs;
+%                 p_a_in = p_a_in+(-p_a_in)/tao_pos_in*1.0/fs;
+% 
+%                 M_in = M_in + Po_ex*A_neg_in;
+%                 g_in = g_in + sum(g_a_in.*sig_in);
+%                 g_a_in = g_a_in + sig_in*(M_in-0.4*A_neg_in)*g_max_in;
+%                 p_a_in = p_a_in + A_pos_in*sig_in;
+% 
+%                 g_a_in = g_a_in + (p_a_in-0.4*A_pos_in)*g_max_in*Po_ex;
+% 
+%                 g_a_in = max(g_a_in,0);
+%                 g_a_in = min(g_a_in,g_max_in);
 
             end
+            
             ans_my = sum(vol>-10);
             fprintf('spiking_time:%i\n',ans_my);
+
+            if show_mode==1
+                hist(g_a/g_max,M_s);
+                title('g_a');
+                pause(0.01);
+            end
         end
         sig_ex_all = [];
         sig_in_all = [];

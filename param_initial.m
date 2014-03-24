@@ -1,11 +1,12 @@
 function param = param_initial(param_name)
     param.fs = 1000;
+    param.show_mode = 1;
     
     if strcmp(param_name,'ss00')==1
         param.n = 1000;
         param.m = 200;
         param.tmax = 5;
-        param.time_simu = 1000;
+        param.time_simu = 2000;
         
         param.tao_m = 20.0/1000;
         param.v_rest = -70;
@@ -27,6 +28,7 @@ function param = param_initial(param_name)
         param.tao_pos_in = 30.0/1000;
         param.A_pos_in = 0.015;
         param.A_neg_in = param.A_pos_in;        
+        param.g_in_ba = 0.05;
         
         param.lamda = [1.0/10 1.0/15 1.0/20 1.0/20];
         
