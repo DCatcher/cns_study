@@ -31,7 +31,7 @@ function param = param_initial(param_name)
         param.A_neg_in = param.A_pos_in;        
         param.g_in_ba = 0.05;
         
-        param.lamda = [1.0/10 1.0/15 1.0/20 1.0/20];
+        param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
         
         param.cont = 0;
     elseif strcmp(param_name,'network')==1
@@ -41,6 +41,7 @@ function param = param_initial(param_name)
 		param.tmax = 5;
 		param.conn_rate = 0.8;
 		param.time_simu = 2000;
+		
 
 		param.expand_size = 7;
 		param.tao_m = 20.0/1000;
@@ -64,16 +65,11 @@ function param = param_initial(param_name)
 		param.A_pos_in = 0.015*param.expand_size;
 		param.A_neg_in = param.A_pos_in;
         
-		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/20];
+		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
         param.cont = 0;
-
     elseif strcmp(param_name,'pattern_positive')==1
-    
     elseif strcmp(param_name,'pattern_negative')==1
-        
     else
-        fprintf('Wrong Argument\n');
-        return;
     end
     
 end

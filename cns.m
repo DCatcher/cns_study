@@ -8,9 +8,11 @@ function cns(param_name)
     elseif strcmp(param_name,'network')==1
 		neuron_network(param);
     elseif strcmp(param_name,'pattern_positive')==1
-    
+		fprintf('I will finish it!');
+		return;
     elseif strcmp(param_name,'pattern_negative')==1
-        
+		fprintf('I will finish it!');
+		return;
     else
         fprintf('Wrong Argument\n');
         return;
