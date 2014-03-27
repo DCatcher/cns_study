@@ -1,6 +1,6 @@
 function param = param_initial(param_name)
     param.fs = 1000;
-    param.display_mode = 1;
+    param.display_mode = 0;
     param.short_report_mode = 1;
     
     if strcmp(param_name,'ss00')==1
@@ -71,7 +71,7 @@ function param = param_initial(param_name)
     elseif strcmp(param_name,'pattern_positive')==1
         param.n = 1000;
         param.m = 200;
-        param.tmax = 5;
+        param.tmax = 10;
         param.time_simu = 20000;
         
         param.tao_m = 20.0/1000;
@@ -96,13 +96,13 @@ function param = param_initial(param_name)
         param.A_neg_in = param.A_pos_in;        
         param.g_in_ba = 0.05;
         
-        param.lamda = [1.0/50];
+        param.lamda = [1.0/50 1.0/40 1.0/30 1.0/20 1.0/10];
 
         param.cont = 0;
 
-		param.time_pa = 0.2;
+		param.time_pa = 0.3;
 		param.wid_pa = 800;
-		param.lamda_pa = 0.6;
+		param.lamda_pa = 0.7;
     elseif strcmp(param_name,'pattern_negative')==1
     else
     end

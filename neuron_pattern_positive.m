@@ -67,7 +67,7 @@ function [vol, g_a] = neuron_pattern_positive(param)
 		mean_reaction_r = [];
 		all_reaction_r = [];
 
-		pattern_my = gen_pattern(time_pa, fs, wid_pa, lamda);
+		pattern_my = gen_pattern(time_pa, fs, wid_pa, lamda_now);
         
         for time_now=0:tmax:time_simu
             if short_report_mode==1
