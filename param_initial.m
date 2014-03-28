@@ -1,6 +1,6 @@
 function param = param_initial(param_name)
     param.fs = 1000;
-    param.display_mode = 0;
+    param.display_mode = 1;
     param.short_report_mode = 1;
     
     if strcmp(param_name,'ss00')==1
@@ -35,6 +35,13 @@ function param = param_initial(param_name)
 		param.lamda = [1.0/10];
         
         param.cont = 0;
+
+		param.mode_pic = 1;
+
+		param.sigma = 0.5;
+		param.tao_c = 0.2;
+		param.c_a = 0:0.0002:0.1998;
+		param.sigma_a = sqrt(param.sigma^2-param.c_a.^2);
     elseif strcmp(param_name,'network')==1
 		param.sig_n = 100;
 		param.ex_n = 100;

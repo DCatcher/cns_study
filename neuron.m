@@ -60,7 +60,11 @@ function [vol, g_a] = neuron(param)
             if short_report_mode==1
                 fprintf('time_now:%i/%i, step: %i, Poi fre: %i\n',time_now,time_simu,tmax,tag_now);
             end
-            [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
+			if param.mode_pic==0
+	            [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
+			else
+				[sig_ex_all,sig_in_all] = gen_sig_ex_corr(n,m,tmax,fs,lamda_now, param.c_a, param.tao_c, param.sigma_a);
+			end
             if (time_now>0)
                 vol(1) = vol(time_all);
             end
@@ -116,8 +120,19 @@ function [vol, g_a] = neuron(param)
             end
 
             if display_mode==1
-                hist(g_a/g_max,M_s);
-                title('g_a');
+				if param.mode_pic==0
+					hist(g_a/g_max,M_s);
+                	title('g_a');
+				else
+					bar_len = 25;
+					a = 1:bar_len;
+					b = zeros(1,bar_len);
+					for i=1:bar_len
+						b(i) = mean(g_a(((i-1)*n/bar_len+1):(i*n/bar_len)));
+					end
+					bar(a,b/g_max);
+					title('Fig 5.a');
+				end
                 pause(0.01);
             end
         end
