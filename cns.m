@@ -5,8 +5,9 @@ function cns(param_name)
     
     if strcmp(param_name,'ss00')==1
         neuron(param);
-    elseif strcmp(param_name,'network')==1
-		neuron_network(param);
+    elseif strcmp(param_name,'ss01')==1
+%		neuron_network(param);
+		neuron_ss01(param);
     elseif strcmp(param_name,'pattern_positive')==1
 		neuron_pattern_positive(param);
     elseif strcmp(param_name,'pattern_negative')==1

@@ -74,6 +74,7 @@ function [vol, g_a] = neuron(param)
                     vol(i) = -60;
                 else
                     vol(i) = (v_rest-vol(i-1)+(g_ex*(e_ex-vol(i-1))+g_in*(e_in-vol(i-1))))/tao_m*1.0/fs+vol(i-1);
+%                    vol(i) = (v_rest-vol(i-1)+(g_ex*(e_ex-vol(i-1))+g_in*(e_in-vol(i-1))))/tao_m*1.0/fs+vol(i-1);
                     if (vol(i)>=v_th)
                         Po_ex = 1;
                         vol(i) = 0;
@@ -121,8 +122,9 @@ function [vol, g_a] = neuron(param)
 
             if display_mode==1
 				if param.mode_pic==0
-					hist(g_a/g_max,M_s);
-                	title('g_a');
+%					hist(g_a/g_max,M_s);
+%                	title('g_a');
+					plot(vol);
 				else
 					bar_len = 25;
 					a = 1:bar_len;
