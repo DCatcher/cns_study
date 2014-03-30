@@ -58,7 +58,11 @@ function [sig_ex_all, sig_in_all] = gen_sig_touch(n,m,tmax,fs,lamda,r_1,tao_c,si
 	
 	lamda_standrad = 0.1*fs;
 	big_exp_rand = random('exp', lamda_standrad, n, len_inter, 2*max_time);
-	big_exp_rand = big_exp_rand.*(fs./repmat(r_a,1,1,2*max_time))/lamda_standrad;
+	r_a_new = zeros(n,len_inter,2*max_time);
+	for i=1:2*max_time
+		r_a_new(:,:,i) = r_a;
+	end
+	big_exp_rand = big_exp_rand.*(fs./r_a_new)/lamda_standrad;
 
 	for i=1:n
 		middle_rand = zeros(len_inter, 2*max_time);

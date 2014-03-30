@@ -47,7 +47,9 @@ function neuron_ss01(param)
 					g_a_sig_to_ex(i,j) = 0.5*g_max*exp(-0.5*(d/100)^2);
 				end
 			end
-			%g_a_sig_to_ex = rand(ex_n,sig_n)*g_max;
+			if param.inhibi==1
+				g_a_sig_to_ex = rand(ex_n,sig_n)*g_max;
+			end
 			%g_a_sig_to_ex(80:120,400:600) = rand(41,201)*g_max;
 			conn_sig_to_ex = (rand(ex_n,sig_n)<se_conn_rate);
 			p_a_sig_to_ex = zeros(ex_n, sig_n);
@@ -55,10 +57,21 @@ function neuron_ss01(param)
 			g_sig_to_ex = 1*ones(ex_n,1);
 			%to be finished
 			conn_net = max((rand(ex_n,ex_n)<net_conn_rate)-diag(ones(1,ex_n)),0);
+			if param.inhibi==1
+				for i=1:ex_n
+					for j=1:ex_n
+						if (abs(j-i)<(param.ex_dist/2) | abs(j-i+200)<(param.ex_dist/2) | abs(j-i-200)<(param.ex_dist/2)) & (j~=i)
+							conn_net(i,j) = 1;
+						else
+							conn_net(i,j) = 0;
+						end
+					end
+				end
+			end
 			p_a_ex_to_ex = zeros(ex_n, ex_n);
 			M_ex_to_ex = 0*ones(ex_n,1);
 			g_ex_to_ex = 1*ones(ex_n,1);
-			g_a_ex_to_ex = rand(ex_n,ex_n)*0.2*g_max;
+			g_a_ex_to_ex = rand(ex_n,ex_n)*0*g_max;
 		elseif (cont==1)
 			load save_data
 		end
@@ -110,7 +123,7 @@ function neuron_ss01(param)
 				Po_ex = (vol_ex(:,i-1)>=v_th);
 				vol_ex(:,i) = -60*(vol_ex(:,i-1)>v_th);
 				vol_ex(:,i) = vol_ex(:,i) + (vol_ex(:,i-1)<v_th).*...
-					((v_rest-vol_ex(:,i-1)+((g_sig_to_ex+g_ex_to_ex*(1-param.inhibi)+sig_back(i)*param.g_back).*(e_ex-vol_ex(:,i-1))))/tao_m*1.0/fs+param.g_in_stand*sum(Po_ex)*(param.inhibi)*(param.e_in-vol_ex(:,i-1))/tao_m*1.0/fs+vol_ex(:,i-1));
+					((v_rest-vol_ex(:,i-1)+((g_sig_to_ex+g_ex_to_ex+sig_back(i)*param.g_back).*(e_ex-vol_ex(:,i-1))))/tao_m*1.0/fs+param.g_in_stand*sum(Po_ex)*(param.inhibi)*(param.e_in-vol_ex(:,i-1))/tao_m*1.0/fs+vol_ex(:,i-1));
 				Po_ex = (vol_ex(:,i)>=v_th);
 				Po_ex_row = find(Po_ex==1);
 				vol_ex(:,i) = vol_ex(:,i).*(vol_ex(:,i)<v_th); 
