@@ -2,7 +2,7 @@ function pattern = gen_pattern(time_pa, fs, wid_pa, lamda)
 	time_len = time_pa*fs;
 	lamda_new = lamda*fs;
 
-	pre_all = random('exp', lamda_new, wid_pa+time_pa/lamda, time_pa/lamda+20);
+	pre_all = random('exp', lamda_new, round(wid_pa+time_pa/lamda), round(time_pa/lamda+20));
 	pre_all = cumsum(pre_all')';
 	t_left = 1+wid_pa;
 	pattern = zeros(time_len, wid_pa);

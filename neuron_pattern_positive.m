@@ -47,7 +47,7 @@ function [vol, g_a] = neuron_pattern_positive(param)
 
     for lamda_now=lamda
         if (cont==0)
-            g_a = g_max*rand(1, n);
+            g_a = g_max*1*ones(1, n);
             p_a = zeros(1, n);
             M = 0;
             g_a_in = g_max*zeros(1, m);
@@ -68,6 +68,8 @@ function [vol, g_a] = neuron_pattern_positive(param)
 		all_reaction_r = [];
 
 		pattern_my = gen_pattern(time_pa, fs, wid_pa, lamda_now);
+		size(pattern_my)
+		hit_time = [];
         
         for time_now=0:tmax:time_simu
             if short_report_mode==1
@@ -76,8 +78,9 @@ function [vol, g_a] = neuron_pattern_positive(param)
             [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
 
 			pre_all = random('exp', lamda_pa*fs, 5, round(tmax/lamda_pa)+10);
-			pre_all = cumsum(pre_all')';
 			pre_all = pre_all + time_pa*fs;
+			pre_all = cumsum(pre_all')';
+			pre_all = pre_all;
 			pre = pre_all(1,:);
 			t_left = 2;
 			while (pre(end)<time_all)
@@ -86,17 +89,38 @@ function [vol, g_a] = neuron_pattern_positive(param)
 			end
 
 			ans_lists = find((pre>time_all),1);
-			ans_my_pa = round(pre(1:(ans_lists(1)-1)))+1;        
+			ans_my_pa = round(pre(1:(ans_lists(1)-1)))+1; 
 			for time_sta=ans_my_pa
-				sig_ex_all(1:size(pattern_my,1), 1:size(pattern_my,2)) = pattern_my;
+				sig_ex_all(time_sta+(1:size(pattern_my,1)), 1:size(pattern_my,2)) = pattern_my;
 			end
+
+            if short_report_mode==1
+				fprintf('length of the pattern:%i\n', length(ans_my_pa));
+			end
+
+			hit_or_not = zeros(size(ans_my_pa));
+			
 
             if (time_now>0)
                 vol(1) = vol(time_all);
             end
 			vol_empty = v_reset*ones(1,time_all);
 			vol_empty(ans_my_pa) = 0;
+
+			now_pa_pos = 1;
+			last_pos = 0;
+			
             for i=2:time_all
+				while (i>ans_my_pa(now_pa_pos)+time_pa*fs)
+					now_pa_pos = now_pa_pos+1;
+					if now_pa_pos>length(ans_my_pa)
+						now_pa_pos = now_pa_pos-1;
+						break;
+					end
+				end
+
+				t_pa_pos =ans_my_pa(now_pa_pos); 
+
                 Po_ex = 0;
                 if (vol(i-1)>v_th)
                     vol(i) = v_reset;
@@ -107,6 +131,16 @@ function [vol, g_a] = neuron_pattern_positive(param)
                         vol(i) = 0;
                     end
                 end
+
+				if (vol(i)==0)
+					if (i>=t_pa_pos) & (i<t_pa_pos+time_pa*fs)
+						if last_pos~=now_pa_pos
+							hit_time(end+1) = i-t_pa_pos;	
+							last_pos = now_pa_pos;
+							hit_or_not(now_pa_pos) = 1;
+						end
+					end
+				end
 
                 sig_in = sig_ex_all(i,:);
                 g_ex = g_ex+(-g_ex)/tao_ex*1.0/fs;
@@ -144,6 +178,7 @@ function [vol, g_a] = neuron_pattern_positive(param)
             
             ans_my = sum(vol>-10);
             if short_report_mode==1
+				fprintf('hit time:%i\n',sum(hit_or_not));
                 fprintf('spiking_time:%i\n',ans_my);
             end
 
@@ -191,8 +226,8 @@ function [vol, g_a] = neuron_pattern_positive(param)
 				title('mean reaction random');
 				pause(0.01);
 				subplot(2,2,4);
-				plot(mean_reaction);
-				title('mean reaction');
+				plot(hit_time,'b.');
+				title('hit time');
 				pause(0.01);
             end
         end

@@ -18,10 +18,10 @@ function param = param_initial(param_name)
         
         param.tao_ex = 5.0/1000;
         param.g_max = 0.015;
-        param.tao_neg = 20.0/1000;
-        param.tao_pos = 20.0/1000;
+        param.tao_neg = 32.7/1000;
+        param.tao_pos = 16.8/1000;
         param.A_pos = 0.005;
-        param.A_neg = 1.05*param.A_pos;
+        param.A_neg = 0.516*param.A_pos;
 
         param.tao_ex_in = 5.0/1000;
         param.g_max_in = 0.5;
@@ -32,7 +32,7 @@ function param = param_initial(param_name)
         param.g_in_ba = 0.05;
         
 %        param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
-		param.lamda = [1.0/10];
+		param.lamda = [1.0/64];
         
         param.cont = 0;
 
@@ -104,10 +104,10 @@ function param = param_initial(param_name)
         
         param.tao_ex = 5.0/1000;
         param.g_max = 0.015;
-        param.tao_neg = 20.0/1000;
-        param.tao_pos = 20.0/1000;
+        param.tao_neg = 32.0/1000;
+        param.tao_pos = 16.0/1000;
         param.A_pos = 0.005;
-        param.A_neg = 1.05*param.A_pos;
+        param.A_neg = 0.525*param.A_pos;
 
         param.tao_ex_in = 5.0/1000;
         param.g_max_in = 0.5;
@@ -117,13 +117,13 @@ function param = param_initial(param_name)
         param.A_neg_in = param.A_pos_in;        
         param.g_in_ba = 0.05;
         
-        param.lamda = [1.0/50 1.0/40 1.0/30 1.0/20 1.0/10];
+        param.lamda = [1.0/64];
 
         param.cont = 0;
 
-		param.time_pa = 0.3;
-		param.wid_pa = 800;
-		param.lamda_pa = 0.7;
+		param.time_pa = 0.05;
+		param.wid_pa = 500;
+		param.lamda_pa = 0.14;
     elseif strcmp(param_name,'pattern_negative')==1
     else
     end

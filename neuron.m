@@ -122,9 +122,9 @@ function [vol, g_a] = neuron(param)
 
             if display_mode==1
 				if param.mode_pic==0
-%					hist(g_a/g_max,M_s);
-%                	title('g_a');
-					plot(vol);
+					hist(g_a/g_max,M_s);
+                	title('g_a');
+					%plot(vol);
 				else
 					bar_len = 25;
 					a = 1:bar_len;
