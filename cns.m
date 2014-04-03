@@ -1,6 +1,7 @@
 function cns(param_name)
     close all
-    rand('state',sum(100*clock));
+    %rand('state',sum(100*clock));
+    rand('state',0);
     param = param_initial(param_name);
     
     if strcmp(param_name,'ss00')==1

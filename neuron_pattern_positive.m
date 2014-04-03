@@ -26,11 +26,11 @@ function [vol, g_a] = neuron_pattern_positive(param)
 	A_neg = param.A_neg;
     
     tao_ex_in = param.tao_ex_in;
-	g_max_in = param.g_max_in;
-	tao_neg_in = param.tao_neg_in;
-	tao_pos_in = param.tao_pos_in;
-	A_pos_in = param.A_pos_in;
-	A_neg_in = param.A_neg_in;
+% 	g_max_in = param.g_max_in;
+% 	tao_neg_in = param.tao_neg_in;
+% 	tao_pos_in = param.tao_pos_in;
+% 	A_pos_in = param.A_pos_in;
+% 	A_neg_in = param.A_neg_in;
     g_in_ba = param.g_in_ba;
     
     display_mode = param.display_mode;
@@ -50,9 +50,9 @@ function [vol, g_a] = neuron_pattern_positive(param)
             g_a = g_max*1*ones(1, n);
             p_a = zeros(1, n);
             M = 0;
-            g_a_in = g_max*zeros(1, m);
-            p_a_in = zeros(1, m);
-            M_in = 0;
+%             g_a_in = g_max*zeros(1, m);
+%             p_a_in = zeros(1, m);
+%             M_in = 0;
             g_ex = 1;
             g_in = 0;
         elseif (cont==1)
@@ -68,7 +68,9 @@ function [vol, g_a] = neuron_pattern_positive(param)
 		all_reaction_r = [];
 
 		pattern_my = gen_pattern(time_pa, fs, wid_pa, lamda_now);
-		size(pattern_my)
+		sum_tmp = sum(pattern_my);
+		zero_num = sum(sum_tmp==0);
+		fprintf('%i/%i is not emitting!\n', zero_num, wid_pa);
 		hit_time = [];
         
         for time_now=0:tmax:time_simu
@@ -80,7 +82,7 @@ function [vol, g_a] = neuron_pattern_positive(param)
 			pre_all = random('exp', lamda_pa*fs, 5, round(tmax/lamda_pa)+10);
 			pre_all = pre_all + time_pa*fs;
 			pre_all = cumsum(pre_all')';
-			pre_all = pre_all;
+% 			pre_all = pre_all;
 			pre = pre_all(1,:);
 			t_left = 2;
 			while (pre(end)<time_all)
@@ -90,6 +92,7 @@ function [vol, g_a] = neuron_pattern_positive(param)
 
 			ans_lists = find((pre>time_all),1);
 			ans_my_pa = round(pre(1:(ans_lists(1)-1)))+1; 
+			ans_my_pa = [1 ans_my_pa];
 			for time_sta=ans_my_pa
 				sig_ex_all(time_sta+(1:size(pattern_my,1)), 1:size(pattern_my,2)) = pattern_my;
 			end
@@ -104,8 +107,8 @@ function [vol, g_a] = neuron_pattern_positive(param)
             if (time_now>0)
                 vol(1) = vol(time_all);
             end
-			vol_empty = v_reset*ones(1,time_all);
-			vol_empty(ans_my_pa) = 0;
+% 			vol_empty = v_reset*ones(1,time_all);
+% 			vol_empty(ans_my_pa) = 0;
 
 			now_pa_pos = 1;
 			last_pos = 0;
@@ -133,12 +136,14 @@ function [vol, g_a] = neuron_pattern_positive(param)
                 end
 
 				if (vol(i)==0)
-					if (i>=t_pa_pos) & (i<t_pa_pos+time_pa*fs)
+					if (i>=t_pa_pos) && (i<=t_pa_pos+time_pa*fs)
 						if last_pos~=now_pa_pos
 							hit_time(end+1) = i-t_pa_pos;	
 							last_pos = now_pa_pos;
 							hit_or_not(now_pa_pos) = 1;
 						end
+					else
+						hit_time(end+1) = 0;
 					end
 				end
 
@@ -185,34 +190,35 @@ function [vol, g_a] = neuron_pattern_positive(param)
 			ans_simi = find(vol>-10);
 			ans_simi(end+1) = length(vol)+1;
 
-			size_tmp = length(ans_my_pa);
-			len_tmp = round(tmax/lamda_pa);
-			ans_tmp = 1:len_tmp:time_all;
-
-			for time_sta=ans_my_pa
-				ans_list = find(ans_simi>time_sta);
-				if length(ans_list>0)
-					ans_now = ans_simi(ans_list(1));
-					all_reaction(end+1) = ans_now-time_sta;
-				end
-			end
-			mean_reaction(end+1) = mean(all_reaction);
-
-			for time_sta=ans_tmp
-				ans_list = find(ans_simi>time_sta);
-				if length(ans_list>0)
-					ans_now = ans_simi(ans_list(1));
-					all_reaction_r(end+1) = ans_now-time_sta;
-				end
-			end
-			mean_reaction_r(end+1) = mean(all_reaction_r);
+% 			size_tmp = length(ans_my_pa);
+% 			len_tmp = round(tmax/lamda_pa);
+% 			ans_tmp = 1:len_tmp:time_all;
+% 
+% 			for time_sta=ans_my_pa
+% 				ans_list = find(ans_simi>time_sta);
+% 				if length(ans_list>0)
+% 					ans_now = ans_simi(ans_list(1));
+% 					all_reaction(end+1) = ans_now-time_sta;
+% 				end
+% 			end
+% 			mean_reaction(end+1) = mean(all_reaction);
+% 
+% 			for time_sta=ans_tmp
+% 				ans_list = find(ans_simi>time_sta);
+% 				if length(ans_list>0)
+% 					ans_now = ans_simi(ans_list(1));
+% 					all_reaction_r(end+1) = ans_now-time_sta;
+% 				end
+% 			end
+% 			mean_reaction_r(end+1) = mean(all_reaction_r);
 
 
             if display_mode==1
-				subplot(2,2,1);
+				subplot(2,1,1);
                 hist(g_a/g_max,M_s);
                 title('g_a');
                 pause(0.01);
+				%{
 				subplot(2,2,2);
 				plot(vol);
 				title('vol');
@@ -225,7 +231,8 @@ function [vol, g_a] = neuron_pattern_positive(param)
 				plot(mean_reaction_r);
 				title('mean reaction random');
 				pause(0.01);
-				subplot(2,2,4);
+				%}
+				subplot(2,1,2);
 				plot(hit_time,'b.');
 				title('hit time');
 				pause(0.01);

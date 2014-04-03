@@ -87,7 +87,7 @@ function param = param_initial(param_name)
 %		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
 		param.lamda = [1.0/10];
         param.cont = 0;
-		param.inhibi = 1;
+		param.inhibi = 0;
 		param.ex_dist = 40;
     elseif strcmp(param_name,'pattern_positive')==1
         param.n = 1000;
@@ -117,7 +117,7 @@ function param = param_initial(param_name)
         param.A_neg_in = param.A_pos_in;        
         param.g_in_ba = 0.05;
         
-        param.lamda = [1.0/64];
+        param.lamda = [1.0/35];
 
         param.cont = 0;
 
