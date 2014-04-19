@@ -1,1 +1,1 @@
-cns('ss01');
+cns('sparse_coding');

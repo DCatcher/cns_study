@@ -124,6 +124,49 @@ function param = param_initial(param_name)
 		param.time_pa = 0.05;
 		param.wid_pa = 500;
 		param.lamda_pa = 0.14;
+    elseif strcmp(param_name,'sparse_coding')==1
+		%note: threshold change?
+		param.sig_dim = 8;
+		param.ex_n = 256;
+		param.sig_to_ex_conn_rate = 1;
+		param.net_conn_rate = 1;
+		param.train_num = 100000;
+		param.tr_mat = 'IMAGES';
+		param.lamda_max = 400;
+        param.cont = 0;
+		param.time_per = 50;
+		param.batch_size = 800;
+
+		param.expand_size = 1;
+		param.tao_m = 20.0/1000;
+		param.v_rest = -74;
+		param.e_ex = 0;
+		param.e_in = -70;
+		param.v_th = -54;
+		param.v_reset = -60;
+		
+		param.tao_ex = 5.0/1000;
+		param.g_max = 0.025;
+
+		param.tao_neg = 20.0/1000;
+		param.tao_pos = 20.0/1000;
+		param.A_pos = 0.001*param.expand_size;
+		param.A_neg = 1.04*param.A_pos;
+        
+        param.tao_neg = 32.0/1000;
+        param.tao_pos = 16.0/1000;
+        param.A_pos = 0.005;
+        param.A_neg = 0.525*param.A_pos;
+
+		param.tao_ex_in = 5.0/1000;
+		param.g_max_in = 0.06*param.expand_size;
+		param.tao_neg_in = 20.0/1000;
+		param.tao_pos_in = 20.0/1000;
+		param.A_pos_in = 0.001*param.expand_size;
+		param.A_neg_in = param.A_pos_in;
+		param.neg_amp = 0.2;
+        
+%		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
     elseif strcmp(param_name,'pattern_negative')==1
     else
     end
