@@ -4,6 +4,7 @@ function neuron_sparse_coding(param)
 	fs = param.fs;
 	train_num = param.train_num;
 	lamda_max = param.lamda_max;
+    lamda_min = param.lamda_min;
 	time_per = param.time_per;
 	batch_size = param.batch_size;
 	tr_mat = param.tr_mat;
@@ -34,6 +35,10 @@ function neuron_sparse_coding(param)
     
     short_report_mode = param.short_report_mode;
 	display_mode = param.display_mode;
+    batch_learn = param.batch_learn;
+    easy_inhib = param.easy_inhib;
+	time_pattern = param.time_pattern;
+	divide_len = param.divide_len;
 
 	load(tr_mat);
 	images_in = IMAGES-mean2(IMAGES); 
@@ -47,35 +52,54 @@ function neuron_sparse_coding(param)
     vol_ex = zeros(ex_n,time_all);
 	vol_ex(:,1) = v_reset;
 	sta_pic = zeros(ex_n, sig_dim, sig_dim);
+    sta_pic_ans = zeros(ex_n, sig_dim, sig_dim);
 	sta_num = zeros(ex_n, 1);
+
+	sta_figure = figure;
+	spike_figure = figure;
+	sper_patch_figure = figure;
 	for lamda_now = lamda_max
+        tag_now = ex_n;
 		if (cont==0)
-			g_a_sig_to_ex = g_max*rand(ex_n, sig_n);
+			g_a_sig_to_ex_use = g_max*rand(ex_n, sig_n);
 			p_a_sig_to_ex = zeros(ex_n, sig_n);
 			M_sig_to_ex = 0*ones(ex_n,1);
 			g_sig_to_ex = 1*ones(ex_n,1);
 			
-			g_a_ex_to_other = g_max_in*rand(ex_n, ex_n);
+			g_a_ex_to_other_use = g_max_in*rand(ex_n, ex_n);
 			p_a_ex_to_other = zeros(ex_n, ex_n);
 			M_ex_to_other = 0*ones(ex_n,1);
 			g_ex_to_other = 0*ones(ex_n,1);
 		elseif (cont==1)
 			load save_data
-		end
+        end
 
+        batch_num_count = 0;
+		if time_pattern==1
+			pattern_patches = gen_pat_pic_temporal(param);
+		end
 		for patch_now=0:batch_size:train_num
+			spike_per_patch = zeros(1, batch_size);
+
             if short_report_mode==1
                 fprintf('patch_now:%i/%i, step: %i\n',patch_now,train_num,batch_size);
             end
-			[sig_ex_all pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in,IMAGES);
+			if time_pattern==0
+				[sig_ex_all,pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in,IMAGES, lamda_max, lamda_min);
+			else
+				[sig_ex_all,pic_batch] = gen_sig_pic_temporal(sig_dim,batch_size,time_per,fs,images_in, IMAGES, divide_len, pattern_patches);
+			end
 			if (patch_now>0)
 				vol_ex(:,1) = vol_ex(:,time_all);
 			end
 			batch_indx = 1;
 			batch_fire_num = zeros(ex_n, batch_size);
+            g_a_sig_to_ex = g_a_sig_to_ex_use;
+            g_a_ex_to_other = g_a_ex_to_other_use;
 			for i=2:time_all
 				if mod(i, time_per)==1
 					batch_fire_num(:,batch_indx) = sum((vol_ex(:,(i-time_per):(i-1))>-10)')';
+					spike_per_patch(batch_indx) = sum(batch_fire_num(:,batch_indx)>0);
 					for j=1:ex_n
 						sta_pic(j,:,:) = batch_fire_num(j,batch_indx)*pic_batch(batch_indx,:,:)+sta_pic(j,:,:);
 						sta_num(j) = sta_num(j)+batch_fire_num(j,batch_indx);
@@ -90,8 +114,9 @@ function neuron_sparse_coding(param)
                     end
                 end                
 				vol_ex(:,i) = v_reset*(vol_ex(:,i-1)>v_th);
-				vol_ex(:,i) = vol_ex(:,i) + (vol_ex(:,i-1)<v_th).*...
-					((v_rest-vol_ex(:,i-1)+g_sig_to_ex.*(e_ex-vol_ex(:,i-1))+g_ex_to_other.*(e_in-vol_ex(:,i-1)))/tao_m*1.0/fs+vol_ex(:,i-1));
+                vol_ex(:,i) = vol_ex(:,i) + (vol_ex(:,i-1)<v_th).*...
+                    ((v_rest-vol_ex(:,i-1)+g_sig_to_ex.*(e_ex-vol_ex(:,i-1))+g_ex_to_other.*(e_in-vol_ex(:,i-1)))/tao_m*1.0/fs+vol_ex(:,i-1));
+
 				Po_ex = (vol_ex(:,i)>=v_th);
 				Po_ex_row = find(Po_ex==1);
 				vol_ex(:,i) = vol_ex(:,i).*(vol_ex(:,i)<v_th); 
@@ -111,9 +136,13 @@ function neuron_sparse_coding(param)
 				M_sig_to_ex = M_sig_to_ex*(1-1/tao_neg*1.0/fs);
 				p_a_sig_to_ex = p_a_sig_to_ex*(1-1/tao_pos*1.0/fs);
 
-
 				M_sig_to_ex = M_sig_to_ex - Po_ex*A_neg;
-				g_sig_to_ex = g_sig_to_ex + (sum((g_a_sig_to_ex(:,sig_in_row))'))';
+				if batch_learn==1
+                    g_sig_to_ex = g_sig_to_ex + (sum((g_a_sig_to_ex_use(:,sig_in_row))'))';
+                else
+                    g_sig_to_ex = g_sig_to_ex + (sum((g_a_sig_to_ex(:,sig_in_row))'))';
+                end
+                
 				g_a_sig_to_ex(:,sig_in_row) = g_a_sig_to_ex(:,sig_in_row) + repmat(M_sig_to_ex, 1, length(sig_in_row))*g_max;
 				g_a_sig_to_ex(:,sig_in_row) = max(g_a_sig_to_ex(:,sig_in_row),0);
 				p_a_sig_to_ex(:,sig_in_row) = p_a_sig_to_ex(:,sig_in_row) + A_pos;
@@ -137,36 +166,53 @@ function neuron_sparse_coding(param)
 				sig_in_row = find(sig_in==1);
 
 				g_ex_to_other = g_ex_to_other*(1-1/(tao_ex_in*fs));
-				M_ex_to_other = M_ex_to_other*(1-1/(tao_neg_in*fs));
-				p_a_ex_to_other = p_a_ex_to_other*(1-1/(tao_pos_in*fs));
-
-				M_ex_to_other = M_ex_to_other + Po_all*A_neg_in;
-				g_ex_to_other = g_ex_to_other + (sum((g_a_ex_to_other(:,sig_in_row))'))';
-				g_a_ex_to_other(:,sig_in_row) = g_a_ex_to_other(:,sig_in_row) + repmat(M_ex_to_other-neg_amp*A_neg_in,1,length(sig_in_row))*g_max_in;
-				g_a_ex_to_other(:,sig_in_row) = max(g_a_ex_to_other(:,sig_in_row),0);
-				g_a_ex_to_other(:,sig_in_row) = min(g_a_ex_to_other(:,sig_in_row),g_max_in);
-				p_a_ex_to_other(:,sig_in_row) = p_a_ex_to_other(:,sig_in_row) + A_pos_in;
-
-				if length(Po_ex_row)<0.5*ex_n
-					g_a_ex_to_other(Po_ex_row,:) = g_a_ex_to_other(Po_ex_row,:) + (p_a_ex_to_other(Po_ex_row,:)-neg_amp*A_pos_in)*g_max_in;
-					g_a_ex_to_other(Po_ex_row,:) = min(g_a_ex_to_other(Po_ex_row,:),g_max_in);
-					g_a_ex_to_other(Po_ex_row,:) = max(g_a_ex_to_other(Po_ex_row,:),0);
+				if easy_inhib==1
+					last_fire_num = sum(vol_ex(:,i-1)>-10);
+					g_ex_to_other = g_ex_to_other + (last_fire_num - (vol_ex(:,i-1)>-10))*param.inhibi_strength;
 				else
-					g_a_ex_to_other = g_a_ex_to_other+(p_a_ex_to_other-neg_amp*A_pos_in)*g_max_in;
-					Po_ex_row = find(Po_ex==0);
-					g_a_ex_to_other(Po_ex_row,:) = g_a_ex_to_other(Po_ex_row,:) - (p_a_ex_to_other(Po_ex_row,:)-neg_amp*A_pos_in)*g_max_in;
-					g_a_ex_to_other = min(g_a_ex_to_other,g_max_in);
-					g_a_ex_to_other = max(g_a_ex_to_other,0);
-					Po_ex_row = find(Po_ex==1);
+					M_ex_to_other = M_ex_to_other*(1-1/(tao_neg_in*fs));
+					p_a_ex_to_other = p_a_ex_to_other*(1-1/(tao_pos_in*fs));
+
+					M_ex_to_other = M_ex_to_other + Po_all*A_neg_in;
+					if batch_learn==1
+						g_ex_to_other = g_ex_to_other + (sum((g_a_ex_to_other_use(:,sig_in_row))'))';
+					else
+						g_ex_to_other = g_ex_to_other + (sum((g_a_ex_to_other(:,sig_in_row))'))';
+					end
+					
+					g_a_ex_to_other(:,sig_in_row) = g_a_ex_to_other(:,sig_in_row) + repmat(M_ex_to_other-neg_amp*A_neg_in,1,length(sig_in_row))*g_max_in;
+					g_a_ex_to_other(:,sig_in_row) = max(g_a_ex_to_other(:,sig_in_row),0);
+					g_a_ex_to_other(:,sig_in_row) = min(g_a_ex_to_other(:,sig_in_row),g_max_in);
+					p_a_ex_to_other(:,sig_in_row) = p_a_ex_to_other(:,sig_in_row) + A_pos_in;
+
+					if length(Po_ex_row)<0.5*ex_n
+						g_a_ex_to_other(Po_ex_row,:) = g_a_ex_to_other(Po_ex_row,:) + (p_a_ex_to_other(Po_ex_row,:)-neg_amp*A_pos_in)*g_max_in;
+						g_a_ex_to_other(Po_ex_row,:) = min(g_a_ex_to_other(Po_ex_row,:),g_max_in);
+						g_a_ex_to_other(Po_ex_row,:) = max(g_a_ex_to_other(Po_ex_row,:),0);
+					else
+						g_a_ex_to_other = g_a_ex_to_other+(p_a_ex_to_other-neg_amp*A_pos_in)*g_max_in;
+						Po_ex_row = find(Po_ex==0);
+						g_a_ex_to_other(Po_ex_row,:) = g_a_ex_to_other(Po_ex_row,:) - (p_a_ex_to_other(Po_ex_row,:)-neg_amp*A_pos_in)*g_max_in;
+						g_a_ex_to_other = min(g_a_ex_to_other,g_max_in);
+						g_a_ex_to_other = max(g_a_ex_to_other,0);
+						Po_ex_row = find(Po_ex==1);
+					end
 				end
 %in_to_other finish
-
-			end
+            end
+            
+            if batch_learn==1
+                g_a_sig_to_ex_use = g_a_sig_to_ex;
+                g_a_ex_to_other_use = g_a_ex_to_other;
+            end
+            
+			spike_every = sum(([vol_ex']>-10));
 			ans_my = mean(sum(([vol_ex']>-10)));
             if short_report_mode==1
                 fprintf('spiking_time:%f\n',ans_my);
             end
 			if display_mode==1
+				figure(sta_figure);
 				now_indx = 1;
 				sqrt_ex_n = round(sqrt(ex_n));
                 big_pic = zeros(sqrt_ex_n*sig_dim, sqrt_ex_n*sig_dim);
@@ -175,9 +221,9 @@ function neuron_sparse_coding(param)
 					for j=1:sqrt_ex_n
                         subplot('Position',[(i-1)*inter_val,(j-1)*inter_val,inter_val*0.9,inter_val*0.9]);
 						tmp = zeros(sig_dim, sig_dim);
-						tmp(:,:) = sta_pic(now_indx,:,:);
-						tmp = tmp/sta_num(now_indx);
-						tmp = tmp/max(max(tmp))/2+0.5;
+						tmp(:,:) = sta_pic_ans(now_indx,:,:);
+                        tmp = tmp-mean2(tmp);
+						tmp = tmp/max(max(abs(tmp))+0.0001)/2+0.5;
 						imagesc(tmp,[0 1]);
 						axis image off; colormap gray;
 						now_indx = now_indx+1;
@@ -186,7 +232,24 @@ function neuron_sparse_coding(param)
                 end
                 %imshow(big_pic/g_max,[0 1]);
 				pause(0.1);
-			end
+				figure(spike_figure);
+				hist(spike_every);
+				figure(sper_patch_figure);
+				hist(spike_per_patch);
+            end
+%             batch_num_count = batch_num_count+1;
+%             if batch_num_count==5
+%                 sta_pic = zeros(ex_n, sig_dim, sig_dim);
+%                 sta_num = zeros(ex_n, 1);
+%                 batch_num_count = 0;
+%             end
+            
+            tmp_sta = find(sta_num>param.sta_big_num);
+            for tmp_idx=tmp_sta'
+                sta_pic_ans(tmp_idx,:,:) = sta_pic(tmp_idx,:,:)./sta_num(tmp_idx);
+                sta_num(tmp_idx) = 0;
+                sta_pic(tmp_idx,:,:) = zeros(1, sig_dim, sig_dim);
+            end
 		end
 		sig_ex_all = [];
         s = ['data_',int2str(tag_now)];

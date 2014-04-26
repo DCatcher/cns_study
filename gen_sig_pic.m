@@ -1,4 +1,4 @@
-function [sig_ex_all pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in, IMAGES)
+function [sig_ex_all,pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in, IMAGES, lamda_max, lamda_min)
 	time_all = time_per*batch_size;
 
 	sig_ex_all = zeros(time_all, sig_dim*sig_dim);
@@ -11,9 +11,13 @@ function [sig_ex_all pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,ima
 	pic_batch = zeros(batch_size, sig_dim, sig_dim);
 
 	for i =1:batch_size
-		tmp = images_in((which_x(i)):(which_x(i)+sig_dim-1),(which_y(i)):(which_y(i)+sig_dim-1),which_z(i));
+% 		tmp = images_in((which_x(i)):(which_x(i)+sig_dim-1),(which_y(i)):(which_y(i)+sig_dim-1),which_z(i));
 		pic_batch(i, :, :) = IMAGES((which_x(i)):(which_x(i)+sig_dim-1),(which_y(i)):(which_y(i)+sig_dim-1),which_z(i));
-		sig_pic(:,i) = tmp(:);
+		tmp = pic_batch(i,:,:);
+		tmp = tmp-mean2(tmp);
+		tmp = tmp/max(max(max(abs(tmp))));
+		tmp = tmp/2+0.5;
+		sig_pic(:,i) = tmp(:)*(lamda_max-lamda_min)+lamda_min;
 	end
 	r_a = sig_pic;
 
