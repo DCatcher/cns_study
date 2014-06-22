@@ -13,7 +13,15 @@ function cns(param_name)
     elseif strcmp(param_name,'pattern_positive')==1
 		neuron_pattern_positive(param);
 	elseif strcmp(param_name,'sparse_coding')==1
-		neuron_sparse_coding(param);
+        if param.fast_sparse==1
+            if param.inter_neuron==0
+                neuron_sparse_coding_fast(param);
+            else
+                neuron_sparse_coding_inter(param);
+            end
+        else
+            neuron_sparse_coding(param);
+        end
     elseif strcmp(param_name,'ss00toy')==1
         neuron_toy(param);
     elseif strcmp(param_name,'pattern_negative')==1
