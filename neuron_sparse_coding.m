@@ -56,9 +56,10 @@ function neuron_sparse_coding(param)
 	sta_num = zeros(ex_n, 1);
     
     if display_mode==1
-        sta_figure = figure;
-        spike_figure = figure;
-        sper_patch_figure = figure;
+        sta_figure      = figure;
+%         spike_figure = figure;
+%         sper_patch_figure = figure;
+        point_spike_fig = figure;
     end
 	for lamda_now = lamda_max
         tag_now = ex_n;
@@ -75,6 +76,16 @@ function neuron_sparse_coding(param)
 		elseif (cont==1)
 			load save_data
         end
+        
+        if (param.gene_file==1)
+            fprintf('Generating input data\n');
+            [sig_all, pic_all]  = gen_sig_one_fire_batch_exp(sig_dim, param.save_size, time_per, IMAGES, param.fire_max_time, param.I_0, param);
+            save(param.file_name, 'sig_all', 'pic_all');
+        end
+        
+        if ((param.from_file==1)) && (param.gene_file==0)
+            load(param.file_name);
+        end
 
         batch_num_count = 0;
 		if time_pattern==1
@@ -87,15 +98,21 @@ function neuron_sparse_coding(param)
                 fprintf('patch_now:%i/%i, step: %i\n',patch_now,train_num,batch_size);
             end
             
-            if param.one_fire_exp==1
-                [sig_ex_all,pic_batch] = gen_sig_one_fire_batch_exp(sig_dim, batch_size, time_per, IMAGES, param.fire_max_time, param.I_0);
-            elseif param.one_fire==1
-				[sig_ex_all,pic_batch] = gen_sig_one_fire_batch(sig_dim, batch_size, time_per, fs, IMAGES, param.fire_interval);
-			elseif time_pattern==0
-				[sig_ex_all,pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in,IMAGES, lamda_max, lamda_min);
-			else
-				[sig_ex_all,pic_batch] = gen_sig_pic_temporal(sig_dim,batch_size,time_per,fs,images_in, IMAGES, divide_len, pattern_patches);
-			end
+            if param.from_file==0
+                if param.one_fire_exp==1
+                    [sig_ex_all,pic_batch] = gen_sig_one_fire_batch_exp(sig_dim, batch_size, time_per, IMAGES, param.fire_max_time, param.I_0, param);
+                elseif param.one_fire==1
+                    [sig_ex_all,pic_batch] = gen_sig_one_fire_batch(sig_dim, batch_size, time_per, fs, IMAGES, param.fire_interval);
+                elseif time_pattern==0
+                    [sig_ex_all,pic_batch] = gen_sig_pic(sig_dim,batch_size,time_per,fs,images_in,IMAGES, lamda_max, lamda_min);
+                else
+                    [sig_ex_all,pic_batch] = gen_sig_pic_temporal(sig_dim,batch_size,time_per,fs,images_in, IMAGES, divide_len, pattern_patches);
+                end
+            else
+                indx_now    = mod(patch_now, param.save_size);
+                sig_ex_all  = sig_all(((indx_now*time_per+1):(indx_now+batch_size)*time_per), :);
+                pic_batch   = pic_all(((indx_now+1):(indx_now+batch_size)), :, :);
+            end
 			if (patch_now>0)
 				vol_ex(:,1) = vol_ex(:,time_all);
 			end
@@ -104,8 +121,12 @@ function neuron_sparse_coding(param)
             g_a_sig_to_ex = g_a_sig_to_ex_use;
             g_a_ex_to_other = g_a_ex_to_other_use;
             
-            g_sig_to_ex_all = [];
-            sig_in_row_all = [];
+%             g_sig_to_ex_all = [];
+%             sig_in_row_all = [];
+            
+                        
+            fire_list = [];
+            sig_list = [];
             
 			for i=2:time_all
 				if mod(i, time_per)==1
@@ -132,7 +153,7 @@ function neuron_sparse_coding(param)
                     end
                 end
                 
-                g_sig_to_ex_all(end+1) = mean(g_sig_to_ex);
+%                 g_sig_to_ex_all(end+1) = mean(g_sig_to_ex);
 				vol_ex(:,i) = v_reset*(vol_ex(:,i-1)>v_th);
                 vol_ex(:,i) = vol_ex(:,i) + (vol_ex(:,i-1)<v_th).*...
                     ((v_rest-vol_ex(:,i-1)+g_sig_to_ex.*(e_ex-vol_ex(:,i-1))+g_ex_to_other.*(e_in-vol_ex(:,i-1)))/tao_m*1.0/fs+vol_ex(:,i-1));
@@ -141,6 +162,16 @@ function neuron_sparse_coding(param)
 				Po_ex_row = find(Po_ex==1);
 				vol_ex(:,i) = vol_ex(:,i).*(vol_ex(:,i)<v_th);
                 vol_ex(:,i) = max(e_in, vol_ex(:,i));
+                
+                                
+                for Po_ex_tmp = Po_ex_row'
+                    if isempty(Po_ex_tmp)
+                        break;
+                    end
+                    fire_list = [fire_list [Po_ex_tmp;i]];
+                end
+                
+                
 %				size(sta_pic(Po_ex_row,:,:))
 %				size(repmat(pic_batch(floor((i-2)/50)+1,:,:), length(Po_ex_row), 1))
 				%{
@@ -152,8 +183,16 @@ function neuron_sparse_coding(param)
 %sig_to_ex begin
 				sig_in = sig_ex_all(i,:);
 				sig_in_row = find(sig_in==1);
-                sig_in_row_all(end+1) = length(sig_in_row);
+%                 sig_in_row_all(end+1) = length(sig_in_row);
+                sig_in_row_back = sig_in_row;
 
+                for sig_in_tmp = sig_in_row
+                    if isempty(sig_in_tmp)
+                        break;
+                    end
+                    sig_list = [sig_list [sig_in_tmp;i]];
+                end                
+                
 				g_sig_to_ex = g_sig_to_ex*(1-1/tao_ex*1.0/fs);
 				M_sig_to_ex = M_sig_to_ex*(1-1/tao_neg*1.0/fs);
 				p_a_sig_to_ex = p_a_sig_to_ex*(1-1/tao_pos*1.0/fs);
@@ -225,6 +264,13 @@ function neuron_sparse_coding(param)
 %in_to_other finish
             end
             
+%             size(sig_list)
+%             size(fire_list)
+%             sig_list(:,1:100)
+%             fire_list(:,1:100)
+
+%             disp(fire_list(2, fire_list(2,:)<time_per));
+            
             if batch_learn==1
                 g_a_sig_to_ex_use = g_a_sig_to_ex;
                 g_a_ex_to_other_use = g_a_ex_to_other;
@@ -242,7 +288,7 @@ function neuron_sparse_coding(param)
                 fprintf('spiking_time:%f\n',ans_my);
                 %disp(spike_every);
             end
-			if display_mode==1
+			if (display_mode==1) && (mod(patch_now, param.display_inter)==0)
 				set(0, 'CurrentFigure', sta_figure);
 				now_indx = 1;
 				sqrt_ex_n = round(sqrt(ex_n));
@@ -265,12 +311,24 @@ function neuron_sparse_coding(param)
 %                 imagesc(big_pic,[0 1]);
 %                 axis image off; colormap gray;
 %                 subplot(1,3,2);
-				set(0, 'CurrentFigure', spike_figure);
-				hist(spike_every);
+% 				set(0, 'CurrentFigure', spike_figure);
+% 				hist(spike_every);
 %                 subplot(1,3,3);
-				set(0, 'CurrentFigure', sper_patch_figure);
-				hist(spike_per_patch);
-				pause(0.01);
+% 				set(0, 'CurrentFigure', sper_patch_figure);
+% 				hist(spike_per_patch);
+                set(0, 'CurrentFigure', point_spike_fig);
+                fire_tmp    = fire_list(:, fire_list(2, :)<time_per);
+                sig_tmp     = sig_list(:,sig_list(2, :)<time_per);
+                for sig_row_tmp=sig_tmp
+                    plot(sig_row_tmp(2), sig_row_tmp(1), 'b.');
+                    hold on
+                end
+                
+                for fire_row_tmp=fire_tmp
+                    plot(fire_row_tmp(2), fire_row_tmp(1)+sig_dim*sig_dim*2, 'r.');
+                end
+                hold off
+				pause(0.1);
             end
 %             batch_num_count = batch_num_count+1;
 %             if batch_num_count==5

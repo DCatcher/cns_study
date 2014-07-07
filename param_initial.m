@@ -1,6 +1,6 @@
 function param = param_initial(param_name)
     param.fs = 1000;
-    param.display_mode = 0;
+    param.display_mode = 1;
     param.short_report_mode = 1;
     
     if strcmp(param_name,'ss00')==1
@@ -44,10 +44,10 @@ function param = param_initial(param_name)
 		param.sigma_a = sqrt(param.sigma^2-param.c_a.^2);
     elseif strcmp(param_name,'ss01')==1
 		param.sig_n = 1000;
-		param.ex_n = 200;
+		param.ex_n = 20;
 		param.m = 0;
 		param.tmax = 10;
-		param.sig_to_ex_conn_rate = 0.3;
+		param.sig_to_ex_conn_rate = 0.35;
 		param.net_conn_rate = 0.5;
 		param.time_simu = 2000;
 
@@ -60,7 +60,7 @@ function param = param_initial(param_name)
 		param.v_reset = -60;
 		
 		param.tao_ex = 5.0/1000;
-		param.g_max = 0.02;
+		param.g_max = 0.04;
 		param.tao_neg = 20.0/1000;
 		param.tao_pos = 20.0/1000;
 		param.A_pos = 0.001*param.expand_size;
@@ -89,6 +89,37 @@ function param = param_initial(param_name)
         param.cont = 0;
 		param.inhibi = 0;
 		param.ex_dist = 40;
+        param.ex_to_ex_flag = 0;
+        
+        param.input_2d = 0;
+        if param.input_2d==1
+            param.sig_n = 1600;
+            param.ex_n = 1;
+            param.sigma = 5*sqrt(2);
+        end
+        
+        param.input_bar_2d = 1;
+        if param.input_bar_2d==1
+            param.gamma     = 3;
+            param.sigma     = 8;
+            param.sig_n     = 1600;
+            param.ex_n      = 1;
+        end
+        
+        param.input_bar_pic = 0;
+        if param.input_bar_pic==1
+            param.sig_n     = 1600;
+            param.ex_n      = 1;
+            load IMAGES
+            param.IMAGES    = IMAGES;
+        end
+        
+        param.from_file     = 1;
+        param.gene_file     = 1;
+        param.file_name     = 'data/ss01_bar_change_thinner_wider/input_data_';
+        param.save_size     = 20;
+        
+        param.save_file_name    = 'data_bar_change_thinner_wider';
     elseif strcmp(param_name,'pattern_positive')==1
         param.n = 1000;
         param.m = 200;
@@ -125,6 +156,14 @@ function param = param_initial(param_name)
 		param.wid_pa = 500;
 		param.lamda_pa = 0.14;
     elseif strcmp(param_name,'sparse_coding')==1
+        param.display_mode  = 1;
+        param.display_inter = 2000;
+        
+        param.from_file     = 1;
+        param.gene_file     = 1;
+        param.file_name     = 'data/input_data';
+        param.save_size     = 10000;
+        
 		%note: threshold change?
 		param.sig_dim = 8;
 		param.ex_n = 121;
@@ -152,14 +191,17 @@ function param = param_initial(param_name)
 		param.v_th = -54;
 		param.v_reset = -60;
 		
-		param.tao_ex = 5.0/1000;
-		param.g_max = 0.04;
+% 		param.tao_ex = 5.0/1000;
+        param.tao_ex = 5.0/1000;
+        param.g_max = 0.05;
+% 		param.g_max = 0.04;
 
-		param.tao_neg = 20.0/1000;
-		param.tao_pos = 20.0/1000;
-		param.A_pos = 0.001*param.expand_size;
+		param.tao_neg = 40.0/1000;
+		param.tao_pos = 30.0/1000;
+		param.A_pos = 0.005*param.expand_size;
 		%param.A_neg = 1.027*param.A_pos; %easy inhibi
-		param.A_neg = 0.85*param.A_pos;
+% 		param.A_neg = 1.25*param.A_pos;
+        param.A_neg = 1.25*param.A_pos;
         
 %         param.tao_neg = 32.0/1000;
 %         param.tao_pos = 16.0/1000;
@@ -167,7 +209,8 @@ function param = param_initial(param_name)
 %         param.A_neg = 0.51*param.A_pos;
 
 		%param.tao_ex_in = 5.0/1000;
-		param.tao_ex_in = 45.0/1000;
+% 		param.tao_ex_in = 45.0/1000;
+        param.tao_ex_in = 45.0/1000;
 		param.g_max_in = 100/(param.ex_n)*5*0.2*param.expand_size;
         %5*?
 		param.tao_neg_in = 20.0/1000;
@@ -180,7 +223,7 @@ function param = param_initial(param_name)
 
 		param.fre_min = 100;
 		param.fre_max = 200;
-		param.divide_len = 50;
+		param.divide_len = 30;
 		param.jitter_stride = 6;
         
 %		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
@@ -194,13 +237,20 @@ function param = param_initial(param_name)
         
         %decide the latency by the exp
         param.one_fire_exp = 1;
-        param.fire_max_time = 100;
+%         param.fire_max_time = 100;
+        param.fire_max_time = 45;
+        param.fire_base_time_ex = 0;
+        param.fire_base_time_in = 0;
+        
         param.I_0 = 0.15;
         % T = fire_max_time * exp(-I/I_0), I>0 or 
         %     fire_max_time * exp(I/I_0), I<0
+        
+        
         if param.one_fire_exp==1
-            param.time_per = param.fire_max_time*2;
-            param.g_max = 0.0585;
+            param.time_per = (max(param.fire_base_time_ex, param.fire_base_time_in) + param.fire_max_time) + 40;
+            param.g_max = 0.1085;
+%             param.g_max = 0.0685;
             param.offset = 2;
         end
         
