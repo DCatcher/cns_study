@@ -281,7 +281,7 @@ function param = param_initial(param_name)
 		end
 		if param.one_fire==1
         	param.time_simu = 200;
-		else     
+        else
         	param.time_simu = 2000;
 		end
         param.ave_range = 0;

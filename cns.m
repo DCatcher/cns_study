@@ -1,9 +1,10 @@
-function cns(param_name)
+function cns(param_name, varargin)
     close all
     %rand('state',sum(100*clock));
     rand('state',0);
 	randn('state',0);
-    param = param_initial(param_name);
+    param   = param_initial(param_name);
+    param   = parseArgs(varargin, param);
     
     if strcmp(param_name,'ss00')==1
         neuron(param);
