@@ -43,9 +43,10 @@ function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sig
     typical     = zeros(dim, dim);
     
 	len_inter   = length(interval_my);
-    I_0         = 0.3;
+    I_0         = 0.4;
     
-    sig_dim = 10;
+    sig_dim = dim;
+%     sig_dim = 10;
 	[x,y,z] = size(IMAGES);
 	which_x = ceil(rand(len_inter,1)*(x-sig_dim));
 	which_y = ceil(rand(len_inter,1)*(y-sig_dim));
@@ -67,7 +68,8 @@ function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sig
             if fre_now<0.1
                 r_a(i,j)    = 0;
             else
-                r_a(i,j)    = min((fre_now-0.1)/I_0*50, 100);
+%                 r_a(i,j)    = min((fre_now-0.1)/I_0*50, 100);
+                r_a(i,j)    = min((fre_now)/I_0*50, 100);
             end
 
             typical(x1+1, y1+1)     = r_a(i,j);

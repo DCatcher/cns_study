@@ -66,7 +66,7 @@ function neuron_ss01(param)
 				g_a_sig_to_ex = rand(ex_n,sig_n)*g_max;
 			end
 			%g_a_sig_to_ex(80:120,400:600) = rand(41,201)*g_max;
-            g_a_sig_to_ex  = rand(ex_n, sig_n)*g_max;
+            g_a_sig_to_ex  = rand(ex_n, sig_n)*g_max*0.3;
 			conn_sig_to_ex = (rand(ex_n,sig_n)<se_conn_rate);
 			p_a_sig_to_ex = zeros(ex_n, sig_n);
 			M_sig_to_ex = 0*ones(ex_n,1);
@@ -108,7 +108,7 @@ function neuron_ss01(param)
 %         end
         
 		sig_back = repmat([0,1],1,5000);
-        pixel_size  = 2;        
+        pixel_size  = param.pixel_size;
         %draw the conn map
         if display_mode==1
             if (param.input_2d==0) && (param.input_bar_2d==0) && (param.input_bar_pic==0)
@@ -160,7 +160,6 @@ function neuron_ss01(param)
 				%hist(g_a_sig_to_ex(1,:)/g_max,M_s);
                 if (param.input_2d==0) && (param.input_bar_2d==0) && (param.input_bar_pic==0)
                     set(0, 'CurrentFigure', bar_figure);
-
                     g_a = g_a_sig_to_ex(watch_input,:).*conn_sig_to_ex(watch_input,:);
                     bar_len = 10;
                     a = 1:bar_len;
@@ -173,34 +172,37 @@ function neuron_ss01(param)
                 else
                     set(0, 'CurrentFigure', bar_figure);
                     
-                    g_a         = g_a_sig_to_ex(watch_input,:).*conn_sig_to_ex(watch_input,:);
-                    dim         = floor(sqrt(sig_n));
-                    bar_len     = floor(dim/pixel_size);
-                    b           = zeros(bar_len, bar_len);
-                    for i=1:bar_len
-                        for j=1:bar_len
-                            all_num     = 0.1;
-                            for k=1:pixel_size
-                                for l=1:pixel_size
-                                    x   = (i-1)*pixel_size+k;
-                                    y   = (j-1)*pixel_size+l;
-                                    pos = (x-1)*dim+y;
-                                    
-                                    b(i,j)  = b(i,j) + g_a(pos);
-                                    if g_a(pos)>0
-                                        all_num     = all_num+1;
+                    plot_size   = floor(sqrt(ex_n));
+                    for watch_input_tmp=1:ex_n
+                        g_a         = g_a_sig_to_ex(watch_input_tmp,:).*conn_sig_to_ex(watch_input_tmp,:);
+                        dim         = floor(sqrt(sig_n));
+                        bar_len     = floor(dim/pixel_size);
+                        b           = zeros(bar_len, bar_len);
+                        for i=1:bar_len
+                            for j=1:bar_len
+                                all_num     = 0.1;
+                                for k=1:pixel_size
+                                    for l=1:pixel_size
+                                        x   = (i-1)*pixel_size+k;
+                                        y   = (j-1)*pixel_size+l;
+                                        pos = (x-1)*dim+y;
+
+                                        b(i,j)  = b(i,j) + g_a(pos);
+                                        if g_a(pos)>0
+                                            all_num     = all_num+1;
+                                        end
                                     end
                                 end
+
+                                b(i,j)  = (b(i,j)/g_max)/(all_num);
                             end
-                            
-                            b(i,j)  = (b(i,j)/g_max)/(all_num);
                         end
+
+                        subplot(plot_size, plot_size, watch_input_tmp);
+                        imagesc(b,[0 1]);   
+                        axis image off; colormap gray;
+    %                     mesh(b);
                     end
-                    
-                    imagesc(b,[0 1]);   
-					axis image off; colormap gray;
-%                     mesh(b);
-                    
                     set(0, 'CurrentFigure', sig_figure);
                     mesh(sig_in_gen);
 %                     surf(b);

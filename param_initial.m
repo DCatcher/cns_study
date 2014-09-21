@@ -1,7 +1,8 @@
 function param = param_initial(param_name)
-    param.fs = 1000;
-    param.display_mode = 1;
-    param.short_report_mode = 1;
+    param.fs            = 1000;
+    param.display_mode  = 1;
+    param.short_report_mode     = 1;
+    param.param_name    = param_name;
     
     if strcmp(param_name,'ss00')==1
         param.n = 1000;
@@ -92,30 +93,13 @@ function param = param_initial(param_name)
         param.ex_to_ex_flag = 0;
         
         param.input_2d = 0;
-        if param.input_2d==1
-            param.sig_n = 1600;
-            param.ex_n = 1;
-            param.sigma = 5*sqrt(2);
-        end
-        
         param.input_bar_2d = 1;
-        if param.input_bar_2d==1
-            param.gamma     = 3;
-            param.sigma     = 8;
-            param.sig_n     = 1600;
-            param.ex_n      = 1;
-        end
-        
         param.input_bar_pic = 0;
-        if param.input_bar_pic==1
-            param.sig_n     = 1600;
-            param.ex_n      = 1;
-            load IMAGES
-            param.IMAGES    = IMAGES;
-        end
         
-        param.from_file     = 1;
-        param.gene_file     = 1;
+        param.pixel_size    = 1;
+        
+        param.from_file     = 0;
+        param.gene_file     = 0;
         param.file_name     = 'data/ss01_bar_change_thinner_wider/input_data_';
         param.save_size     = 20;
         
@@ -229,11 +213,6 @@ function param = param_initial(param_name)
 %		param.lamda = [1.0/10 1.0/15 1.0/20 1.0/25];
 		param.one_fire = 0;
 		param.fire_interval = 3;
-
-		if param.one_fire==1
-			param.time_per = param.fire_interval*(param.sig_dim)^2+300;
-			param.g_max = 0.45;
-        end
         
         %decide the latency by the exp
         param.one_fire_exp = 1;
@@ -246,44 +225,13 @@ function param = param_initial(param_name)
         % T = fire_max_time * exp(-I/I_0), I>0 or 
         %     fire_max_time * exp(I/I_0), I<0
         
-        
-        if param.one_fire_exp==1
-            param.time_per = (max(param.fire_base_time_ex, param.fire_base_time_in) + param.fire_max_time) + 40;
-            param.g_max = 0.1085;
-%             param.g_max = 0.0685;
-            param.offset = 2;
-        end
-        
         param.inter_neuron = 0;
-        
-        if param.inter_neuron==1
-            param.in_n = 10;
-            param.g_max = 0.285;
-            param.g_max_in = 100/(param.ex_n)*20*0.2*param.expand_size;
-        end
         
     elseif strcmp(param_name,'ss00toy')==1
 		param.one_fire = 1;
 		param.fire_interval = 3;
 
-		if param.one_fire==1
-			param.n = 100;
-			param.fire_frame_len = param.fire_interval*param.n+200;
-		else
-        	param.n = 1000;
-		end
-
         param.m = 1000;
-		if param.one_fire==1
-			param.tmax = param.fire_frame_len/param.fs;
-		else     
-			param.tmax = 10;
-		end
-		if param.one_fire==1
-        	param.time_simu = 200;
-        else
-        	param.time_simu = 2000;
-		end
         param.ave_range = 0;
         
         param.tao_m = 20.0/1000;
@@ -294,13 +242,6 @@ function param = param_initial(param_name)
         param.v_reset = -60;
         
         param.tao_ex = 5.0/1000;
-		if param.one_fire==1
-			param.g_max = 0.35;
-			param.A_pos = 0.05;
-		else
-			param.g_max = 0.015;
-			param.A_pos = 0.005;
-		end
         param.tao_neg = 20/1000;
         param.tao_pos = 20/1000;
         param.A_neg = 1.01*param.A_pos;
@@ -325,12 +266,6 @@ function param = param_initial(param_name)
 		param.mode_pic = 0;
 		param.train_and_test = 1;
 		param.test_num = 1000;
-		if param.one_fire==1
-			param.pattern_fre = 100*rand(1, param.n);
-		else
-			param.pattern_fre = 100*rand(1, 20);
-		end
-
 		param.sigma = 0.5;
 		param.tao_c = 0.2;
 		param.c_a = 0:0.0002:0.1998;

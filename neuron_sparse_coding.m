@@ -41,9 +41,10 @@ function neuron_sparse_coding(param)
 	divide_len = param.divide_len;
 
 	load(tr_mat);
-	images_in = IMAGES-mean2(IMAGES); 
-	images_in = images_in/std2(images_in);
+% 	images_in = IMAGES-mean2(IMAGES); 
+% 	images_in = images_in/std2(images_in);
 %	images_in = 1./(1+exp(images_in));
+    images_in = IMAGES;
 	images_in = images_in/max(max(max(images_in)))/2+0.5;
 	images_in = images_in*lamda_max;
 
@@ -92,7 +93,7 @@ function neuron_sparse_coding(param)
 			pattern_patches = gen_pat_pic_temporal(param);
 		end
 		for patch_now=0:batch_size:train_num
-			spike_per_patch = zeros(1, batch_size);
+			spike_per_patch = zeros(1, batch_size - 1);
 
             if short_report_mode==1
                 fprintf('patch_now:%i/%i, step: %i\n',patch_now,train_num,batch_size);
