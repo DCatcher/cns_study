@@ -95,6 +95,7 @@ function param = param_initial(param_name)
         param.input_2d = 0;
         param.input_bar_2d = 1;
         param.input_bar_pic = 0;
+        param.input_bar_pic_simple  = 0;
         
         param.pixel_size    = 1;
         

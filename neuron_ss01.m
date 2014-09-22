@@ -237,7 +237,11 @@ function neuron_ss01(param)
                         if param.input_bar_pic==0
                             [sig_ex_all,sig_in_gen] = gen_sig_touch(sig_n,0,tmax,fs,lamda_now,param.r_1,param.tao_c,param.sigma);
                         else
-                            [sig_ex_all,sig_in_gen] = gen_sig_bar_pic(sig_n,0,tmax,fs,lamda_now,param.r_1,param.tao_c,param.sigma, param.IMAGES);
+                            if param.input_bar_pic_simple==0
+                                [sig_ex_all,sig_in_gen] = gen_sig_bar_pic(sig_n,0,tmax,fs,lamda_now,param.r_1,param.tao_c,param.sigma, param.IMAGES);
+                            else
+                                [sig_ex_all,sig_in_gen] = gen_sig_bar_pic_simple(sig_n,0,tmax,fs,lamda_now,param.r_1,param.tao_c,param.sigma, param.IMAGES);
+                            end
                         end
                     else
                         [sig_ex_all,sig_in_gen] = gen_sig_bar_2d(sig_n,0,tmax,fs,lamda_now,param.r_1,param.tao_c,param.sigma,param.gamma);

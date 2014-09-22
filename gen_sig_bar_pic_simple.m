@@ -1,4 +1,4 @@
-function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sigma, IMAGES)
+function [sig_ex_all, typical] = gen_sig_bar_pic_simple(n,m,tmax,fs,lamda,r_1,tao_c,sigma, IMAGES)
 	time_all = fs*tmax;
     
     dim = floor(sqrt(n));
@@ -8,8 +8,9 @@ function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sig
     lamda_new = lamda*fs;
 	tao_c_new = tao_c*fs;
     
-    pre_all = random('exp', lamda_new, m+tmax/lamda, round(tmax/lamda*2));
-    pre_all = cumsum(pre_all')';
+%     pre_all = random('exp', lamda_new, m+tmax/lamda, round(tmax/lamda*2));
+    pre_all     = lamda_new * ones(m+tmax/lamda, round(tmax/lamda*2));
+    pre_all     = cumsum(pre_all')';
     
     tn = tmax*fs;
     t_left = 1+m;
@@ -45,8 +46,8 @@ function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sig
 	len_inter   = length(interval_my);
     I_0         = 0.4;
     
-%     sig_dim = dim;
-    sig_dim = 10;
+    sig_dim = dim;
+%     sig_dim = 10;
 	[x,y,z] = size(IMAGES);
 	which_x = ceil(rand(len_inter,1)*(x-sig_dim));
 	which_y = ceil(rand(len_inter,1)*(y-sig_dim));
@@ -83,7 +84,8 @@ function [sig_ex_all, typical] = gen_sig_bar_pic(n,m,tmax,fs,lamda,r_1,tao_c,sig
 	max_time = max_time*2;
 	
 	lamda_standrad = 0.1*fs;
-	big_exp_rand = random('exp', lamda_standrad, n, len_inter, 2*max_time);
+% 	big_exp_rand = random('exp', lamda_standrad, n, len_inter, 2*max_time);
+    big_exp_rand = lamda_standrad * ones(n, len_inter, 2*max_time);
 	r_a_new = zeros(n,len_inter,2*max_time);
 	for i=1:2*max_time
 		r_a_new(:,:,i) = r_a;
