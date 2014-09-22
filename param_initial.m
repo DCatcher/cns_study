@@ -49,6 +49,8 @@ function param = param_initial(param_name)
 		param.tao_c = 0.02;
 		param.c_a = 0:0.0002:0.1998;
 		param.sigma_a = sqrt(param.sigma^2-param.c_a.^2);
+        
+        param.with_speed    = 0;
     elseif strcmp(param_name,'ss01')==1
 		param.sig_n = 1000;
 		param.ex_n = 20;

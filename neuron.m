@@ -61,20 +61,24 @@ function [vol, g_a] = neuron(param)
                 fprintf('time_now:%i/%i, step: %i, Poi fre: %i, ',time_now,time_simu,tmax,tag_now);
             end
 			if param.mode_pic==0
-	            [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
+                if param.with_speed==0
+                    [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
+                else
+                    [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now);
+                end
 			else
 				[sig_ex_all,sig_in_all] = gen_sig_ex_corr(n,m,tmax,fs,lamda_now, param.c_a, param.tao_c, param.sigma_a);
-			end
+            end
             if (time_now>0)
                 vol(1) = vol(time_all);
+            end
+            
+            if param.with_speed==1
+                vol_sig     = v_reset*ones(1, n);
             end
 
             fire_list = [];
             sig_list = cell(n, 1);
-            
-            for i=1:n
-                sig_list{i}     = find(sig_ex_all(:,i));
-            end
             
             for i=2:time_all
                 Po_ex = 0;
@@ -90,7 +94,12 @@ function [vol, g_a] = neuron(param)
                     end
                 end
 
-                sig_in = sig_ex_all(i,:);
+                if param.with_speed==1
+                    vol_sig             = (speed_ex(i,:))/tao_m*1.0/fs+vol_sig;
+                    sig_ex_all(i, :)    = (vol_sig>=v_th);
+                    vol_sig(vol_sig>=v_th)  = v_reset;
+                end
+                sig_in = double(sig_ex_all(i,:));
                 g_ex = g_ex+(-g_ex)/tao_ex*1.0/fs;
                 M = M + (-M)/tao_neg*1.0/fs;
                 p_a = p_a+(-p_a)/tao_pos*1.0/fs;
@@ -123,6 +132,10 @@ function [vol, g_a] = neuron(param)
 %                 g_a_in = min(g_a_in,g_max_in);
 
             end
+            
+            for i=1:n
+                sig_list{i}     = find(sig_ex_all(:,i));
+            end            
             
             ans_my = sum(vol>-10);
             if short_report_mode==1
