@@ -58,7 +58,7 @@ function [vol, g_a] = neuron(param)
         
         for time_now=0:tmax:time_simu
             if short_report_mode==1
-                fprintf('time_now:%i/%i, step: %i, Poi fre: %i\n',time_now,time_simu,tmax,tag_now);
+                fprintf('time_now:%i/%i, step: %i, Poi fre: %i, ',time_now,time_simu,tmax,tag_now);
             end
 			if param.mode_pic==0
 	            [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
@@ -68,6 +68,14 @@ function [vol, g_a] = neuron(param)
             if (time_now>0)
                 vol(1) = vol(time_all);
             end
+
+            fire_list = [];
+            sig_list = cell(n, 1);
+            
+            for i=1:n
+                sig_list{i}     = find(sig_ex_all(:,i));
+            end
+            
             for i=2:time_all
                 Po_ex = 0;
                 if (vol(i-1)>v_th)
@@ -78,6 +86,7 @@ function [vol, g_a] = neuron(param)
                     if (vol(i)>=v_th)
                         Po_ex = 1;
                         vol(i) = 0;
+                        fire_list(end+1)    = i;                        
                     end
                 end
 
@@ -140,7 +149,7 @@ function [vol, g_a] = neuron(param)
         end
         sig_ex_all = [];
         sig_in_all = [];
-        s = ['data_',int2str(tag_now)];
+        s = [param.save_prefix, 'data_',int2str(tag_now)];
         save(s);
         fprintf('saved!%s\n',s);
     end

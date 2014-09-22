@@ -1,11 +1,11 @@
 function cns(param_name, varargin)
     close all
     %rand('state',sum(100*clock));
-    rand('state',1);
-	randn('state',1);
     param   = param_initial(param_name);
     param   = parseArgs(varargin, param);
     param   = param_again(param);
+    rand('state',param.rand_seed);
+	randn('state',param.randn_seed);
 %     load IMAGES
 %     param.IMAGES    = IMAGES;    
     

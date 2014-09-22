@@ -4,7 +4,13 @@ function param = param_initial(param_name)
     param.short_report_mode     = 1;
     param.param_name    = param_name;
     
+    param.save_prefix   = '';
+    
+    param.rand_seed     = 0;
+    param.randn_seed    = 0;
+    
     if strcmp(param_name,'ss00')==1
+        
         param.n = 1000;
         param.m = 200;
         param.tmax = 10;
