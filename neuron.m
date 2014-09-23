@@ -75,6 +75,7 @@ function [vol, g_a] = neuron(param)
             
             if param.with_speed==1
                 vol_sig     = v_reset*ones(1, n);
+                speed_in    = zeros(1, n);
             end
 
             fire_list = [];
@@ -90,13 +91,15 @@ function [vol, g_a] = neuron(param)
                     if (vol(i)>=v_th)
                         Po_ex = 1;
                         vol(i) = 0;
-                        fire_list(end+1)    = i;                        
+                        fire_list(end+1)    = i;      
+                        speed_in    = speed_in + g_a/g_max*param.neg_speed;
                     end
                 end
 
                 if param.with_speed==1
-                    vol_sig             = (speed_ex(i,:))/tao_m*1.0/fs+vol_sig;
+                    vol_sig             = (speed_ex(i,:) - speed_in)/tao_m*1.0/fs+vol_sig;
                     sig_ex_all(i, :)    = (vol_sig>=v_th);
+                    speed_in            = (-speed_in)/param.neg_speed_tao*1.0/fs+speed_in;
                     vol_sig(vol_sig>=v_th)  = v_reset;
                 end
                 sig_in = double(sig_ex_all(i,:));
