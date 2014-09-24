@@ -43,7 +43,11 @@ function [vol, g_a] = neuron(param)
 
     for lamda_now=lamda
         if (cont==0)
-            g_a = g_max*rand(1, n);
+            if param.fix_g_a==0
+                g_a = g_max*rand(1, n);
+            else
+                g_a = [g_max*param.init_g_a*ones(1, n/2), g_max*param.init_g_a_2*ones(1, n/2)];
+            end
             p_a = zeros(1, n);
             M = 0;
             g_a_in = g_max*zeros(1, m);
@@ -61,10 +65,17 @@ function [vol, g_a] = neuron(param)
                 fprintf('time_now:%i/%i, step: %i, Poi fre: %i, ',time_now,time_simu,tmax,tag_now);
             end
 			if param.mode_pic==0
-                if param.with_speed==0
-                    [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
+                if param.with_speed==0                    
+                        [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
                 else
-                    [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now);
+                    if param.sep_sig==0
+                        [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now);
+                    else
+                        [sig_ex_all_1,sig_in_all, speed_ex_1] = gen_sig_ex_with_speed(n/2,m,tmax,fs,lamda_now);
+                        [sig_ex_all_2,sig_in_all_tmp, speed_ex_2] = gen_sig_ex_with_speed(n/2,0,tmax,fs,param.an_lamda);
+                        sig_ex_all  = [sig_ex_all_1(1:tmax*fs, :), sig_ex_all_2(1:tmax*fs, :)];
+                        speed_ex    = [speed_ex_1(1:tmax*fs, :), speed_ex_2(1:tmax*fs, :)];
+                    end
                 end
 			else
 				[sig_ex_all,sig_in_all] = gen_sig_ex_corr(n,m,tmax,fs,lamda_now, param.c_a, param.tao_c, param.sigma_a);
@@ -92,7 +103,9 @@ function [vol, g_a] = neuron(param)
                         Po_ex = 1;
                         vol(i) = 0;
                         fire_list(end+1)    = i;      
-                        speed_in    = speed_in + g_a/g_max*param.neg_speed;
+                        if param.with_speed==1
+                            speed_in    = speed_in + g_a/g_max*param.neg_speed;
+                        end
                     end
                 end
 
@@ -109,13 +122,15 @@ function [vol, g_a] = neuron(param)
 
                 M = M - Po_ex*A_neg;
                 g_ex = g_ex + sum(g_a.*sig_in);
-                g_a = g_a + sig_in*M*g_max;
                 p_a = p_a + A_pos*sig_in;
-
-                g_a = g_a + p_a*g_max*Po_ex;
-
-                g_a = max(g_a,0);
-                g_a = min(g_a,g_max);
+                if param.fix_g_a==0
+                    g_a = g_a + sig_in*M*g_max;
+                    g_a = g_a + p_a*g_max*Po_ex;
+                    g_a = max(g_a,0);
+                    if param.without_limit==0
+                        g_a = min(g_a,g_max);
+                    end
+                end
 
                 sig_in = sig_in_all(i,:);
                 g_in = (-g_in)/tao_ex_in*1.0/fs+g_in;
@@ -147,7 +162,11 @@ function [vol, g_a] = neuron(param)
 
             if display_mode==1
 				if param.mode_pic==0
-					hist(g_a/g_max,M_s);
+                    if param.without_limit==0
+                        hist(g_a/g_max,M_s);
+                    else
+                        hist(g_a/g_max);
+                    end
                 	title('g_a');
 					%plot(vol);
 				else

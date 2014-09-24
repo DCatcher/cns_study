@@ -53,6 +53,16 @@ function param = param_initial(param_name)
         param.with_speed        = 0;
         param.neg_speed         = 0.5;
         param.neg_speed_tao     = 40.0/1000;
+        
+        param.sep_sig           = 0;
+        param.an_lamda          = 1.0/30;
+        param.fix_g_a           = 0;
+        param.init_g_a          = 0.5;
+        
+        param.sep_g_a           = 0;
+        param.init_g_a_2        = 0.25;
+        
+        param.without_limit     = 0;
     elseif strcmp(param_name,'ss01')==1
 		param.sig_n = 1000;
 		param.ex_n = 20;
