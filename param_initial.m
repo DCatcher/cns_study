@@ -42,6 +42,7 @@ function param = param_initial(param_name)
 		param.lamda = [1.0/10];
         
         param.cont = 0;
+        param.save_data_path    = '';
 
 		param.mode_pic = 1;
 

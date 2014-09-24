@@ -56,7 +56,7 @@ function [vol, g_a] = neuron(param)
             g_ex = 1;
             g_in = 0;
         elseif (cont==1)
-            load save_data
+            load(param.save_data_path)
         end
         tag_now = round(1/lamda_now);
         
