@@ -9,7 +9,11 @@ if strcmp(param.param_name, 'new')==1
     if param.cont==0
         param.g_a_sig_to_ex         = rand(param.neuron_n, param.sig_n) * param.g_max * param.initial_A;
         param.delta_g_a_sig_to_ex   = zeros(param.neuron_n, param.sig_n);
-        param.g_sig_to_ex       = zeros(param.neuron_n, 1);
+        param.g_sig_to_ex           = zeros(param.neuron_n, 1);
+        
+        param.g_a_ex_to_ex          = rand(param.neuron_n, param.neuron_n) * param.g_max * param.initial_A_in;
+        param.delta_g_a_ex_to_ex    = zeros(param.neuron_n, param.neuron_n);
+        param.g_ex_to_ex            = zeros(param.neuron_n, 1);
     else
         load(param.cont_file);
         param.screen_initial    = 0;
@@ -29,8 +33,19 @@ if strcmp(param.param_name, 'new')==1
     for i=1:length(param.stdp_sig_to_ex_pos)
         param.stdp_sig_to_ex_pos(i)    = -param.A_pos*exp(-i/(param.fs*param.tao_pos));
     end
-%     
-%     plot([flip(param.stdp_sig_to_ex_neg), param.stdp_sig_to_ex_pos]);
+    
+    param.stdp_ex_to_ex_neg     = zeros(1, floor(5*param.tao_neg*param.fs));
+    param.stdp_ex_to_ex_pos     = zeros(1, floor(5*param.tao_pos*param.fs));
+    
+    for i=0:length(param.stdp_ex_to_ex_neg - 1)
+        param.stdp_ex_to_ex_neg(i+1)    = param.A_pos*exp(-i/(param.fs*param.tao_neg)) - param.A_inhi;
+    end
+    
+    for i=1:length(param.stdp_ex_to_ex_pos)
+        param.stdp_ex_to_ex_pos(i)      = param.A_pos*exp(-i/(param.fs*param.tao_pos)) - param.A_inhi;
+    end
+    
+%     plot([flip(param.stdp_ex_to_ex_neg), param.stdp_ex_to_ex_pos]);
 %     pause();
 end
 

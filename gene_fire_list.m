@@ -24,15 +24,20 @@ for i=2:param.time_all
     param.vol_ex(:,i)   = param.v_reset * (param.vol_ex(:,i-1) > param.v_th);
     param.vol_ex(:,i)   = param.vol_ex(:,i) + (param.vol_ex(:,i-1) < param.v_th).* ...
         ((param.v_rest-param.vol_ex(:,i-1) + ...
-        (param.g_sig_to_ex.*(param.e_ex-param.vol_ex(:,i-1))))/param.tao_m*1.0/param.fs + ...
+        (param.g_sig_to_ex.*(param.e_ex - param.vol_ex(:,i-1))) + ...
+        (param.g_ex_to_ex.*(param.e_in - param.vol_ex(:,i-1))))/param.tao_m*1.0/param.fs + ...
         param.vol_ex(:,i-1));
     Po_ex                   = (param.vol_ex(:,i) >= param.v_th);
     param.fire_list(:,i)    = Po_ex;
     
     param.vol_ex(:,i)   = param.vol_ex(:,i) .* (param.vol_ex(:,i) < param.v_th);
+    param.vol_ex(:,i)   = max(param.e_in, param.vol_ex(:,i));
     
     param.g_sig_to_ex   = param.g_sig_to_ex * (1-1/param.tao_ex*1.0/param.fs);
     param.g_sig_to_ex   = param.g_sig_to_ex + (sum((param.g_a_sig_to_ex(:,sig_in_row))',1))';
+    
+    param.g_ex_to_ex    = param.g_ex_to_ex * (1-1/param.tao_ex*1.0/param.fs);
+    param.g_ex_to_ex    = param.g_ex_to_ex + (sum((param.g_a_ex_to_ex(:,Po_ex))',1))';
     
     if param.with_speed==1
         for j=1:param.neuron_n

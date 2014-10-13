@@ -322,6 +322,8 @@ function param = param_initial(param_name)
 		param.A_pos     = 0.001;
 		param.A_neg     = 1.06*param.A_pos;
         
+        param.A_inhi    = 0.1*param.A_pos;
+        
 		param.lamda     = 1.0/10;
         
         param.cont              = 0;
@@ -348,5 +350,6 @@ function param = param_initial(param_name)
         param.choose_rand       = 0;
         
         param.initial_A         = 0.3;
+        param.initial_A_in      = 0.3;
     end
 end
