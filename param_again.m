@@ -1,5 +1,39 @@
 function param = param_again(param)
 
+if strcmp(param.param_name, 'new')==1
+    param.screen_initial    = 0;
+    param.screen_figure     = 0;
+    
+    param.time_all      = param.fs * param.tmax;
+    
+    if param.cont==0
+        param.g_a_sig_to_ex         = rand(param.neuron_n, param.sig_n) * param.g_max * 0.3;
+        param.delta_g_a_sig_to_ex   = zeros(param.neuron_n, param.sig_n);
+        param.g_sig_to_ex       = zeros(param.neuron_n, 1);
+    else
+        load(param.cont_file);
+        param.screen_initial    = 0;
+    end
+    
+    if param.save_sig==1
+        mkdir(param.save_sig_file);
+    end
+    
+    param.stdp_sig_to_ex_neg    = zeros(1, floor(5*param.tao_neg*param.fs));
+    param.stdp_sig_to_ex_pos    = zeros(1, floor(5*param.tao_pos*param.fs));
+    
+    for i=0:length(param.stdp_sig_to_ex_neg - 1)
+        param.stdp_sig_to_ex_neg(i+1)    = param.A_neg*exp(-i/(param.fs*param.tao_neg));
+    end
+    
+    for i=1:length(param.stdp_sig_to_ex_pos)
+        param.stdp_sig_to_ex_pos(i)    = -param.A_pos*exp(-i/(param.fs*param.tao_pos));
+    end
+%     
+%     plot([flip(param.stdp_sig_to_ex_neg), param.stdp_sig_to_ex_pos]);
+%     pause();
+end
+
 if strcmp(param.param_name, 'ss00')==1
 end
 

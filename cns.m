@@ -4,6 +4,8 @@ function cns(param_name, varargin)
     param   = param_initial(param_name);
     param   = parseArgs(varargin, param);
     param   = param_again(param);
+    param   = parseArgs(varargin, param);
+    
     rand('state',param.rand_seed);
 	randn('state',param.randn_seed);
 %     load IMAGES
@@ -28,6 +30,8 @@ function cns(param_name, varargin)
         end
     elseif strcmp(param_name,'ss00toy')==1
         neuron_toy(param);
+    elseif strcmp(param_name,'new')==1
+		neuron_new(param);
     elseif strcmp(param_name,'pattern_negative')==1
 		fprintf('I will finish it!');
 		return;

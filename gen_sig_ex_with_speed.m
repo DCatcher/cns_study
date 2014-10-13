@@ -5,21 +5,32 @@ function [sig_ex_all, sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,
 	sig_in_all  = zeros(time_all, m);
     speed_ex    = zeros(time_all, n);
     
-    test_speed = 0;
-    
     lamda_new = lamda*fs;
     
-    pre_all = random('exp', lamda_new, n+m+tmax/lamda, tmax/lamda+20);
-    pre_all = cumsum(pre_all')';
+    if length(lamda_new)==1
+        lamda_new  = repmat(lamda_new, n+m, 1);
+    end
+    
+    pre_all     = cell(n+m, 1);
     
     tn = tmax*fs;
-    t_left = 1+n+m;
+    
+    for i=1:(n+m)
+        pre_all{i}  = random('exp', lamda_new(i), 1, ceil(2*tmax*fs/lamda_new(i)));
+        while sum(pre_all{i})<tn
+            pre_all{i}  = [pre_all{i}, random('exp', lamda_new(i), 1, ceil(tmax*fs/lamda_new(i)))];
+        end
+        pre_all{i}  = cumsum(pre_all{i});
+    end
 
 	for i=1:n
-        pre = pre_all(i,:);
+        pre = pre_all{i};
+%         disp(size(pre));
+%         disp(size(pre_all{i}));
         while (pre(end)<tn)
-            pre = [pre pre_all(t_left,:)+pre(end)];
-            t_left = t_left+1;
+            disp('error');
+            disp(pre(end));
+            pause();
         end
         ans_lists = find((pre>tn),1);
 %         [tmp ans_lists] = findpeaks((pre<tn)*2+(1:length(pre)));
@@ -34,10 +45,12 @@ function [sig_ex_all, sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,
         end
 	end
 	for i=1:m
-        pre = pre_all(i+n,:);
+        pre = pre_all{i+n};
+%         disp(size(pre));
+%         disp(size(pre_all{i+n}));
         while (pre(end)<tn)
-            pre = [pre pre_all(t_left,:)+pre(end)];
-            t_left = t_left+1;
+            disp('error');
+            pause();
         end        
         ans_lists = find((pre>tn),1);
 %         [tmp ans_lists] = findpeaks((pre<tn)*2+(1:length(pre)));        

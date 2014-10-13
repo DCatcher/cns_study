@@ -1,6 +1,7 @@
 function param = param_initial(param_name)
     param.fs            = 1000;
-    param.display_mode  = 1;
+    
+    param.display_mode          = 1;
     param.short_report_mode     = 1;
     param.param_name    = param_name;
     
@@ -56,7 +57,7 @@ function param = param_initial(param_name)
         param.neg_speed_tao     = 40.0/1000;
         
         param.sep_sig           = 0;
-        param.an_lamda          = 1.0/30;
+        param.an_lamda          = 1.0/20;
         param.fix_g_a           = 0;
         param.init_g_a          = 0.5;
         
@@ -64,6 +65,8 @@ function param = param_initial(param_name)
         param.init_g_a_2        = 0.25;
         
         param.without_limit     = 0;
+        
+        param.choose_rand       = 0;
     elseif strcmp(param_name,'ss01')==1
 		param.sig_n = 1000;
 		param.ex_n = 20;
@@ -126,6 +129,8 @@ function param = param_initial(param_name)
         param.save_size     = 20;
         
         param.save_file_name    = 'data_bar_change_thinner_wider';
+        
+        param.with_speed    = 0;
     elseif strcmp(param_name,'pattern_positive')==1
         param.n = 1000;
         param.m = 200;
@@ -293,7 +298,54 @@ function param = param_initial(param_name)
 		param.c_a = 0:0.0002:0.1998;
 		param.sigma_a = sqrt(param.sigma^2-param.c_a.^2);        
     elseif strcmp(param_name,'pattern_negative')==1
-    else
+    elseif strcmp(param_name,'new')==1
+        param.sig_n     = 1000;
+		param.neuron_n  = 20;
+		param.tmax      = 10;
+		param.time_simu = 2000;
+        
+        param.ln_time   = 10;
+        param.display_per_time  = 20;
+        param.display_cond  = 10;
+
+		param.tao_m     = 20.0/1000;
+		param.v_rest    = -74;
+		param.e_ex      = 0;
+		param.e_in      = -70;
+		param.v_th      = -54;
+		param.v_reset   = -60;
+		
+		param.tao_ex    = 5.0/1000;
+		param.g_max     = 0.04;
+		param.tao_neg   = 20.0/1000;
+		param.tao_pos   = 20.0/1000;
+		param.A_pos     = 0.001;
+		param.A_neg     = 1.06*param.A_pos;
+        
+		param.lamda     = 1.0/10;
+        
+        param.cont              = 0;
+        param.cont_file         = '';
+        
+        param.save_file_name    = '';
+        param.save_per_time     = 20;
+        
+        param.with_speed        = 0;
+        param.neg_speed         = 0.5;
+        param.neg_speed_tao     = 40.0/1000;
+        
+        param.without_limit     = 0;
+        
+        param.save_sig          = 0;
+        param.save_sig_file     = 'data/test_save';
+        param.save_sig_name     = 'oja';
+        
+        param.sig_from_file     = 0;
+        
+        param.sig_in_list       = [];
+        param.fire_list         = [];
+        
+        param.choose_rand       = 0;
+        
     end
-    
 end

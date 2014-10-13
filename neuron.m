@@ -41,12 +41,17 @@ function [vol, g_a] = neuron(param)
         figure;
     end
 
-    for lamda_now=lamda
+    for big_i = 1
+        lamda_now   = lamda;
         if (cont==0)
             if param.fix_g_a==0
                 g_a = g_max*rand(1, n);
             else
-                g_a = [g_max*param.init_g_a*ones(1, n/2), g_max*param.init_g_a_2*ones(1, n/2)];
+                if param.sep_g_a==0
+                    g_a = g_max*param.init_g_a*ones(1, n);
+                else
+                    g_a = [g_max*param.init_g_a*ones(1, n/2), g_max*param.init_g_a_2*ones(1, n/2)];
+                end
             end
             p_a = zeros(1, n);
             M = 0;
@@ -58,7 +63,7 @@ function [vol, g_a] = neuron(param)
         elseif (cont==1)
             load(param.save_data_path)
         end
-        tag_now = round(1/lamda_now);
+        tag_now = round(1/mean(mean(lamda_now)));
         
         for time_now=0:tmax:time_simu
             if short_report_mode==1
@@ -69,7 +74,12 @@ function [vol, g_a] = neuron(param)
                         [sig_ex_all,sig_in_all] = gen_sig_ex_1(n,m,tmax,fs,lamda_now);
                 else
                     if param.sep_sig==0
-                        [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now);
+                        if param.choose_rand==0
+                            [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now);
+                        else
+                            test_i = randsample(1:size(lamda_now, 2), 1);
+                            [sig_ex_all,sig_in_all, speed_ex] = gen_sig_ex_with_speed(n,m,tmax,fs,lamda_now(:,test_i));
+                        end
                     else
                         [sig_ex_all_1,sig_in_all, speed_ex_1] = gen_sig_ex_with_speed(n/2,m,tmax,fs,lamda_now);
                         [sig_ex_all_2,sig_in_all_tmp, speed_ex_2] = gen_sig_ex_with_speed(n/2,0,tmax,fs,param.an_lamda);
