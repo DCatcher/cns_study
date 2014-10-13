@@ -7,7 +7,7 @@ if strcmp(param.param_name, 'new')==1
     param.time_all      = param.fs * param.tmax;
     
     if param.cont==0
-        param.g_a_sig_to_ex         = rand(param.neuron_n, param.sig_n) * param.g_max * 0.3;
+        param.g_a_sig_to_ex         = rand(param.neuron_n, param.sig_n) * param.g_max * param.initial_A;
         param.delta_g_a_sig_to_ex   = zeros(param.neuron_n, param.sig_n);
         param.g_sig_to_ex       = zeros(param.neuron_n, 1);
     else

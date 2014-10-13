@@ -347,5 +347,6 @@ function param = param_initial(param_name)
         
         param.choose_rand       = 0;
         
+        param.initial_A         = 0.3;
     end
 end
