@@ -35,4 +35,4 @@ for i=1:param.neuron_n
     plot(g_tmp_new);
 end
 
-pause(0.01);
+pause(1);

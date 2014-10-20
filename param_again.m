@@ -26,6 +26,16 @@ if strcmp(param.param_name, 'new')==1
     param.stdp_sig_to_ex_neg    = zeros(1, floor(5*param.tao_neg*param.fs));
     param.stdp_sig_to_ex_pos    = zeros(1, floor(5*param.tao_pos*param.fs));
     
+    param.delta_t_his_sig_to_ex_neg     = cell(param.neuron_n, param.sig_n);
+    param.delta_t_his_sig_to_ex_pos     = cell(param.neuron_n, param.sig_n);
+    
+    for i=1:param.neuron_n
+        for j=1:param.sig_n
+            param.delta_t_his_sig_to_ex_neg{i,j}    = zeros(size(param.stdp_sig_to_ex_neg));
+            param.delta_t_his_sig_to_ex_pos{i,j}    = zeros(size(param.stdp_sig_to_ex_pos));
+        end
+    end
+    
     for i=0:length(param.stdp_sig_to_ex_neg - 1)
         param.stdp_sig_to_ex_neg(i+1)    = param.A_neg*exp(-i/(param.fs*param.tao_neg));
     end
@@ -37,6 +47,16 @@ if strcmp(param.param_name, 'new')==1
     param.stdp_ex_to_ex_neg     = zeros(1, floor(5*param.tao_neg*param.fs));
     param.stdp_ex_to_ex_pos     = zeros(1, floor(5*param.tao_pos*param.fs));
     
+    param.delta_t_his_ex_to_ex_neg      = cell(param.neuron_n, param.neuron_n);
+    param.delta_t_his_ex_to_ex_pos      = cell(param.neuron_n, param.neuron_n);
+    
+    for i=1:param.neuron_n
+        for j=1:param.neuron_n
+            param.delta_t_his_ex_to_ex_neg{i,j}     = zeros(size(param.stdp_ex_to_ex_neg));
+            param.delta_t_his_ex_to_ex_pos{i,j}     = zeros(size(param.stdp_ex_to_ex_pos));
+        end
+    end    
+    
     for i=0:length(param.stdp_ex_to_ex_neg - 1)
         param.stdp_ex_to_ex_neg(i+1)    = param.A_pos*exp(-i/(param.fs*param.tao_neg)) - param.A_inhi;
     end
@@ -44,7 +64,14 @@ if strcmp(param.param_name, 'new')==1
     for i=1:length(param.stdp_ex_to_ex_pos)
         param.stdp_ex_to_ex_pos(i)      = param.A_pos*exp(-i/(param.fs*param.tao_pos)) - param.A_inhi;
     end
-    
+
+%     time_list   = -floor(5*param.tao_neg*param.fs):1:0;
+%     plot(time_list, flip(param.stdp_sig_to_ex_neg));
+%     hold on;
+%     time_list   = 1:1:floor(5*param.tao_neg*param.fs);
+%     plot(time_list, param.stdp_sig_to_ex_pos);
+%     plot([flip(param.stdp_sig_to_ex_neg), param.stdp_sig_to_ex_pos]);
+%     pause();
 %     plot([flip(param.stdp_ex_to_ex_neg), param.stdp_ex_to_ex_pos]);
 %     pause();
 end

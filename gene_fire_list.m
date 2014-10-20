@@ -47,3 +47,5 @@ for i=2:param.time_all
         end
     end
 end
+
+param.fire_record   = [param.fire_record, sum(param.fire_list, 2)];

@@ -346,10 +346,13 @@ function param = param_initial(param_name)
         
         param.sig_in_list       = [];
         param.fire_list         = [];
+        param.fire_record       = [];
         
         param.choose_rand       = 0;
+        param.rand_choices      = [];
         
         param.initial_A         = 0.3;
         param.initial_A_in      = 0.3;
+        
     end
 end

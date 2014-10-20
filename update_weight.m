@@ -7,10 +7,14 @@ for i=1:param.neuron_n
         
         for k=1:length(tmp_fire_list)
             tmp_fire_time                       = tmp_fire_list(k);
-            tmp_sig_time_list                   = (tmp_sig_in_list >= tmp_fire_time) & (tmp_sig_in_list < (tmp_fire_time + length(param.stdp_sig_to_ex_neg)));
+            tmp_sig_time_list                   = (tmp_sig_in_list >= tmp_fire_time) & (tmp_sig_in_list < (tmp_fire_time + length(param.stdp_sig_to_ex_neg) - 1));
             param.delta_g_a_sig_to_ex(i,j)      = param.delta_g_a_sig_to_ex(i,j) + sum(param.stdp_sig_to_ex_neg(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1));
+            param.delta_t_his_sig_to_ex_neg{i,j}(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1) ...
+                                                = param.delta_t_his_sig_to_ex_neg{i,j}(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1) + 1;
             tmp_sig_time_list                   = (tmp_sig_in_list < tmp_fire_time) & (tmp_sig_in_list > (tmp_fire_time - length(param.stdp_sig_to_ex_neg)));
             param.delta_g_a_sig_to_ex(i,j)      = param.delta_g_a_sig_to_ex(i,j) + sum(param.stdp_sig_to_ex_pos(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)));
+            param.delta_t_his_sig_to_ex_pos{i,j}(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)) ...
+                                                = param.delta_t_his_sig_to_ex_pos{i,j}(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)) + 1;
         end
     end
 end
@@ -18,14 +22,21 @@ end
 for i=1:param.neuron_n
     tmp_fire_list           = find(param.fire_list(i,:)==1);
     for j=1:param.neuron_n
+        if j==i
+            continue;
+        end
         tmp_sig_in_list     = find(param.fire_list(j,:)==1);
         
         for k=1:length(tmp_fire_list)
             tmp_fire_time                       = tmp_fire_list(k);
             tmp_sig_time_list                   = (tmp_sig_in_list >= tmp_fire_time) & (tmp_sig_in_list < (tmp_fire_time + length(param.stdp_ex_to_ex_neg)));
             param.delta_g_a_ex_to_ex(i,j)       = param.delta_g_a_ex_to_ex(i,j) + sum(param.stdp_ex_to_ex_neg(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1));
+            param.delta_t_his_ex_to_ex_neg{i,j}(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1) ...
+                                                = param.delta_t_his_ex_to_ex_neg{i,j}(tmp_sig_in_list(tmp_sig_time_list) - tmp_fire_time + 1) + 1;
             tmp_sig_time_list                   = (tmp_sig_in_list < tmp_fire_time) & (tmp_sig_in_list > (tmp_fire_time - length(param.stdp_ex_to_ex_neg)));
             param.delta_g_a_ex_to_ex(i,j)      = param.delta_g_a_ex_to_ex(i,j) + sum(param.stdp_ex_to_ex_pos(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)));
+            param.delta_t_his_ex_to_ex_pos{i,j}(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)) ...
+                                                = param.delta_t_his_ex_to_ex_pos{i,j}(tmp_fire_time - tmp_sig_in_list(tmp_sig_time_list)) + 1;
         end
     end
 end

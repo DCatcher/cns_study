@@ -12,7 +12,9 @@ if param.with_speed==1
         if param.choose_rand==0
             [tmp_sig_ex, tmp_sig_in, speed_ex] = gen_sig_ex_with_speed(param.sig_n,0,param.tmax,param.fs,param.lamda);
         else
-            test_i = randsample(1:size(param.lamda, 2), 1);
+            test_i                      = randsample(1:size(param.lamda, 2), 1);
+            param.rand_choices(end+1)   = test_i;
+            
             [tmp_sig_ex, tmp_sig_in, speed_ex] = gen_sig_ex_with_speed(param.sig_n,0,param.tmax,param.fs,param.lamda(:, test_i));
         end
     else
