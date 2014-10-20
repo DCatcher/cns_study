@@ -64,6 +64,15 @@ if strcmp(param.param_name, 'new')==1
     for i=1:length(param.stdp_ex_to_ex_pos)
         param.stdp_ex_to_ex_pos(i)      = param.A_pos*exp(-i/(param.fs*param.tao_pos)) - param.A_inhi;
     end
+    
+    param.learned       = 0;
+    param.displayed     = 0;
+    param.wirten        = 0;
+    
+    param.tmax_m                = floor(param.tmax * param.fs);
+    param.save_per_time_m       = floor(param.save_per_time * param.fs);
+    param.display_per_time_m    = floor(param.display_per_time * param.fs);
+    param.ln_time_m             = floor(param.ln_time * param.fs);
 
 %     time_list   = -floor(5*param.tao_neg*param.fs):1:0;
 %     plot(time_list, flip(param.stdp_sig_to_ex_neg));

@@ -4,9 +4,11 @@ if nargin < 2
     screen_new  = 0;
 end
 
-if mod(param.time_now, param.display_per_time)~=0
+if mod(param.time_now, param.display_per_time_m)~=0
     return;
 end
+
+param.displayed         = 1;
 
 if param.display_mode==0
     return;

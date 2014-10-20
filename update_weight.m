@@ -41,7 +41,9 @@ for i=1:param.neuron_n
     end
 end
 
-if mod(param.time_now, param.ln_time)==0
+if mod(param.time_now, param.ln_time_m)==0
+    param.learned               = 1;
+    
     param.g_a_sig_to_ex         = param.g_a_sig_to_ex + param.delta_g_a_sig_to_ex;
     param.g_a_sig_to_ex         = max(0, param.g_a_sig_to_ex); 
     param.delta_g_a_sig_to_ex   = zeros(param.neuron_n, param.sig_n);
