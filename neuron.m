@@ -87,8 +87,10 @@ function [vol, g_a] = neuron(param)
                         speed_ex    = [speed_ex_1(1:tmax*fs, :), speed_ex_2(1:tmax*fs, :)];
                     end
                 end
-			else
+            elseif param.mode_pic==1
 				[sig_ex_all,sig_in_all] = gen_sig_ex_corr(n,m,tmax,fs,lamda_now, param.c_a, param.tao_c, param.sigma_a);
+            elseif param.mode_pic==2
+                [sig_ex_all,sig_in_all] = gen_sig_ex_center_freq(n,m,tmax,fs,lamda,param.center_freq,param.mini_freq,param.maxi_freq);
             end
             if (time_now>0)
                 vol(1) = vol(time_all);
@@ -179,7 +181,7 @@ function [vol, g_a] = neuron(param)
                     end
                 	title('g_a');
 					%plot(vol);
-				else
+                elseif param.mode_pic==1
 					bar_len = 25;
 					a = 1:bar_len;
 					b = zeros(1,bar_len);
@@ -188,6 +190,15 @@ function [vol, g_a] = neuron(param)
 					end
 					bar(a,b/g_max);
 					title('Fig 5.a');
+                elseif param.mode_pic==2
+                    bar_len = 25;
+					a = 1:bar_len;
+					b = zeros(1,bar_len);
+					for i=1:bar_len
+						b(i) = mean(g_a(((i-1)*n/bar_len+1):(i*n/bar_len)));
+					end
+					bar(a,b/g_max);
+                    title('g_a plot');
 				end
                 pause(0.01);
             end

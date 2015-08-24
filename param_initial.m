@@ -45,13 +45,15 @@ function param = param_initial(param_name)
         param.cont = 0;
         param.save_data_path    = '';
 
-		param.mode_pic = 1;
+		param.mode_pic = 1;     % 1 for correlation, 0 for normal STDP, 2 for center frequency Poission Spikes
 
+        % Parameters for correlation
 		param.sigma = 0.5;
 		param.tao_c = 0.02;
 		param.c_a = 0:0.0002:0.1998;
 		param.sigma_a = sqrt(param.sigma^2-param.c_a.^2);
         
+        %Parameters for with speed
         param.with_speed        = 0;
         param.neg_speed         = 0.5;
         param.neg_speed_tao     = 40.0/1000;
@@ -67,6 +69,12 @@ function param = param_initial(param_name)
         param.without_limit     = 0;
         
         param.choose_rand       = 0;
+        
+        %Parameters for center frequency Poission Spikes
+        param.center_freq       = 50;
+        param.mini_freq         = 20;
+        param.maxi_freq         = 80;
+        
     elseif strcmp(param_name,'ss01')==1
 		param.sig_n = 1000;
 		param.ex_n = 20;
